@@ -2,13 +2,15 @@
    playError() never queues effects; speakEnglish() uses cached English voices. */
 (()=>{'use strict';
  const successURL=document.currentScript?.src?new URL('../assets/audio/correct-sound.mp3',document.currentScript.src).href:null;
- let successEffect=null,successSequence=0;
- function stopSuccess(){successSequence++;if(successEffect){successEffect.pause();successEffect.currentTime=0}}
+ let successEffect=null,successSequence=0,successBuffer=null,successSource=null,successLoading=null;
+ function stopSuccess(){successSequence++;if(successSource){try{successSource.stop()}catch{}successSource=null}if(successEffect){successEffect.pause();successEffect.currentTime=0}}
+ function initSuccess(){if(successEffect)return successEffect;if(!successURL)return null;successEffect=new window.Audio(successURL);successEffect.preload='auto';successEffect.volume=.55;successEffect.addEventListener('error',()=>notify({code:'successEffectFail',cause:successEffect.error}));try{successEffect.load()}catch(error){notify({code:'effectPrepare',cause:error})}return successEffect;}
  function playSuccess(){
-  const request=++successSequence;stopSpeech();
+  const request=++successSequence;stopSpeech();warmEffects();sequence++;
   try{source?.stop();source=null;if(effect){effect.pause();effect.currentTime=0}
-   if(!successEffect){if(!successURL)throw Error('Missing audio manager URL');successEffect=new window.Audio(successURL);successEffect.preload='auto';successEffect.volume=.55;}
-   successEffect.pause();successEffect.currentTime=0;
+   if(!initSuccess())throw Error('Missing audio manager URL');
+   if(successSource){try{successSource.stop()}catch{}successSource=null}successEffect.pause();successEffect.currentTime=0;
+   if(successBuffer&&context?.state==='running'){successSource=context.createBufferSource();successSource.buffer=successBuffer;const gain=context.createGain();gain.gain.value=.55;successSource.connect(gain).connect(context.destination);successSource.start(0);return Promise.resolve(true)}
    return Promise.resolve(successEffect.play()).then(()=>true).catch(error=>{if(request!==successSequence&&error.name==='AbortError')return false;notify({code:'successEffectFail',cause:error});return false});
   }catch(error){notify({code:'successEffectFail',cause:error});return Promise.resolve(false)}
  }
@@ -46,9 +48,11 @@
  function warmEffects(event){
   // Pronunciation uses speech synthesis, not the error MP3 or AudioContext.
   if(event?.target?.closest?.('.speak,#speak,#voice-test'))return;
-  const a=initEffects();if(!a)return;
-  try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!context)context=new C();if(context.state==='suspended')context.resume().catch(error=>notify({code:'effectPrepare',cause:error}));
-   if(!loading){loading=fetch(a.src).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(bytes=>context.decodeAudioData(bytes)).then(decoded=>{buffer=decoded}).catch(error=>notify({code:'effectPrepare',cause:error}))}
+  const a=initEffects(),success=initSuccess();if(!a&&!success)return;
+  try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!context)context=new C({latencyHint:'interactive'});if(context.state==='suspended')context.resume().catch(error=>notify({code:'effectPrepare',cause:error}));
+   if(a&&!loading){loading=fetch(a.src).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(bytes=>context.decodeAudioData(bytes)).then(decoded=>{buffer=decoded}).catch(error=>notify({code:'effectPrepare',cause:error}))}
+   if(success&&!successLoading){successLoading=fetch(success.src).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.arrayBuffer()}).then(bytes=>context.decodeAudioData(bytes)).then(decoded=>{successBuffer=decoded}).catch(error=>notify({code:'effectPrepare',cause:error}))}
+   return Promise.all([loading,successLoading].filter(Boolean));
   }catch(error){notify({code:'effectPrepare',cause:error})}
  }
  function playError(){stopSuccess();warmEffects();const request=++sequence,a=initEffects();
@@ -59,6 +63,6 @@
   }catch(error){notify({code:'effectFail',cause:error});return Promise.resolve(false)}
  }
  window.LXLAudio={playSuccess,initEffects,warmEffects,playError,speakEnglish,stopSpeech,refreshVoices,voiceFor,voiceGender,voiceFallback,get voices(){return voices},onError(fn){listeners.add(fn);if(lastError)fn(lastError);return()=>listeners.delete(fn)},onVoicesChanged(fn){voiceListeners.add(fn);return()=>voiceListeners.delete(fn)}};
- window.speechSynthesis?.addEventListener?.('voiceschanged',refreshVoices);refreshVoices();initEffects();
- document.addEventListener?.('pointerdown',warmEffects,{once:true,capture:true});document.addEventListener?.('keydown',warmEffects,{once:true,capture:true});
+ window.speechSynthesis?.addEventListener?.('voiceschanged',refreshVoices);refreshVoices();initEffects();initSuccess();
+ document.addEventListener?.('pointerdown',warmEffects,{capture:true,passive:true});document.addEventListener?.('keydown',warmEffects,{capture:true});
 })();
