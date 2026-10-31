@@ -1,0 +1,9 @@
+/* Only the new consent/access forms; approved learning geometry is untouched. */
+.sic-commerce-form{display:grid;gap:var(--lxl-space-3,12px)}
+.sic-commerce-form label{min-width:0}
+.sic-commerce-form input:not([type=checkbox]){width:100%;min-width:0}
+.sic-consent{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px;font-size:13px;grid-column:1/-1}
+.sic-consent input[type=checkbox]{width:20px;height:20px;min-width:20px;margin:0}
+.sic-consent span{flex:1;min-width:120px}
+.sic-consent a{text-decoration:underline;text-underline-offset:4px}
+.sic-commerce-form [role=status]{grid-column:1/-1;overflow-wrap:anywhere}

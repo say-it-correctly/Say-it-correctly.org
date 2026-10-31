@@ -1,0 +1,15 @@
+/* Visible player only; the existing quiz state and scoring are never changed. */
+(()=>{'use strict';
+ const quiz=document.getElementById('knowledge-test'),frame=document.getElementById('assessment-video-player');if(!quiz||!frame)return;
+ const copy={
+ en:{heading:'Do you know your English level?',description:'Client-selected video published by Say-it-correctly. org. Watching is optional and does not replace the test.',watch:'Watch on YouTube',help:'If playback is unavailable here, use the YouTube link.',player:'YouTube player',start:'Start the test',intro:'Answer six sample questions for an indicative result. This does not officially determine a CEFR level.'},
+ 'zh-CN':{heading:'你知道自己的英语水平吗？',description:'客户选定、Say-it-correctly. org 发布的视频。观看为可选项，不能替代测试。',watch:'在 YouTube 上观看',help:'如果此处无法播放，请使用 YouTube 链接。',player:'YouTube 播放器',start:'开始测试',intro:'回答六道示例题，获得参考结果。本测试不正式评定 CEFR 等级。'},
+ fr:{heading:'Connaissez-vous votre niveau d’anglais ?',description:'Vidéo sélectionnée par le client et publiée par Say-it-correctly. org. Son visionnage est facultatif et ne remplace pas le test.',watch:'Regarder sur YouTube',help:'Si la lecture est indisponible ici, utilisez le lien YouTube.',player:'Lecteur YouTube',start:'Commencer le test',intro:'Répondez à six questions pour un résultat indicatif. Ce test ne détermine pas officiellement un niveau CECR.'},
+ pt:{heading:'Você sabe qual é o seu nível de inglês?',description:'Vídeo selecionado pelo cliente e publicado por Say-it-correctly. org. Assistir é opcional e não substitui o teste.',watch:'Assistir no YouTube',help:'Se a reprodução estiver indisponível aqui, use o link do YouTube.',player:'Reprodutor do YouTube',start:'Começar o teste',intro:'Responda a seis perguntas de exemplo para um resultado orientativo. Este teste não determina oficialmente um nível QECR.'},
+ es:{heading:'¿Sabes en qué nivel de inglés estás?',description:'Video seleccionado por el cliente y publicado por Say-it-correctly. org. Verlo es opcional y no sustituye el test.',watch:'Ver en YouTube',help:'Si no se puede reproducir aquí, utiliza el enlace de YouTube.',player:'Reproductor de YouTube',start:'Comenzar test',intro:'Responde seis preguntas de muestra y recibe un resultado orientativo. No determina oficialmente un nivel CEFR.'}
+ };
+ // Pause through YouTube's command protocol without hiding, removing or reloading it.
+ quiz.addEventListener('click',event=>{if(event.target.closest('button'))frame.contentWindow?.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}),'https://www.youtube-nocookie.com')},{capture:true});
+ function render(){const t=copy[LXL.lang];for(const [id,key]of Object.entries({'assessment-video-heading':'heading','assessment-video-description':'description','assessment-video-watch':'watch','assessment-video-status':'help','assessment-start-title':'start','assessment-start-intro':'intro'}))document.getElementById(id).textContent=t[key];frame.title=t.player+': '+document.getElementById('assessment-video-title').textContent}
+ document.addEventListener('lxl-language-change',render);render();
+})();

@@ -1,0 +1,22 @@
+/* Assessment-only audiovisual support. Existing questions and banner are unchanged. */
+.assessment-page .assessment-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start;margin-top:24px}
+.assessment-page .assessment-start{min-width:0;border-radius:22px;box-shadow:0 8px 22px #123b780d}
+.assessment-page .assessment-start h2{font-size:25px;line-height:1.3;letter-spacing:-.5px;color:var(--blue);margin:0 0 14px}
+.assessment-page .assessment-start p{font-size:14px;line-height:1.7}
+.assessment-page .assessment-start #knowledge-test{border:0;padding:0;background:transparent;box-shadow:none}
+.assessment-page .assessment-video .assessment-original-title{font-size:12px;color:var(--muted)}
+.assessment-page .assessment-layout #knowledge-test{margin-top:0;min-width:0}
+.assessment-page .assessment-video{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 8px 22px #123b780d;min-width:0;overflow-wrap:anywhere}
+.assessment-page .assessment-video::before{content:'';display:block;width:24px;height:3px;background:var(--red);border-radius:3px;margin-bottom:18px}
+.assessment-page .assessment-video h2{font-size:25px;line-height:1.3;letter-spacing:-.5px;color:var(--blue);margin:0 0 14px}
+.assessment-page .assessment-video h3{font-size:18px;line-height:1.45;color:var(--blue);margin:0 0 12px}
+.assessment-page .assessment-video p{font-size:14px;line-height:1.7;margin:0 0 16px}
+.assessment-page .assessment-video-actions{display:flex;flex-wrap:wrap;gap:10px}
+.assessment-page .assessment-video-actions .btn{white-space:normal;max-width:100%;min-height:44px}
+.assessment-page .assessment-video [hidden]{display:none!important}
+.assessment-page .assessment-video-slot{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:var(--blue);border-radius:14px;margin-bottom:18px}
+.assessment-page .assessment-video-slot iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.assessment-page .assessment-video .assessment-video-status{margin:16px 0 0;font-size:13px;color:var(--muted)}
+.assessment-page .assessment-video :is(a,button,iframe):focus-visible{outline:3px solid var(--red);outline-offset:5px}
+@media(max-width:900px){.assessment-page .assessment-layout{grid-template-columns:minmax(0,1fr)}.assessment-page .assessment-video{max-width:100%}}
+@media(max-width:500px){.assessment-page .assessment-video{padding:20px}.assessment-page .assessment-video-actions .btn{width:100%}}

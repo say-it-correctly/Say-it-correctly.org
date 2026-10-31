@@ -1,0 +1,16 @@
+@font-face{font-family:Urbanist;src:url("assets/fonts/Urbanist-VariableFont_wght.ttf") format("truetype");font-style:normal;font-weight:100 900;font-display:swap}
+@font-face{font-family:Urbanist;src:url("assets/fonts/Urbanist-Italic-VariableFont_wght.ttf") format("truetype");font-style:italic;font-weight:100 900;font-display:swap}
+:root{--learning-font:Urbanist,system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;--learning-blue:var(--lxl-blue,#123b78);--learning-red:var(--lxl-red,#D83449)}body{font-family:var(--learning-font)}[lang="en"],.choose-word,.phrase{font-variant-ligatures:none}button{min-height:44px}.btn{white-space:normal}img{max-width:100%}:lang(zh-CN){font-family:var(--learning-font)}
+
+/* Reusable visual foundations. Keep type scales and component geometry local. */
+:root{
+ --lxl-blue:#123b78;--lxl-blue-hover:#0e3063;--lxl-red:#D83449;--lxl-red-hover:#bb2338;
+ --lxl-white:#fff;--lxl-surface:#fff;--lxl-surface-soft:#f3f6fc;--lxl-surface-selected:#edf3fd;
+ --lxl-ink:#182b46;--lxl-muted:#61718a;--lxl-border:#dfe6f1;--lxl-control-border:#61718a;
+ --lxl-disabled-bg:#e0e7f1;--lxl-disabled-ink:#465d7a;
+ --lxl-radius-control:12px;--lxl-radius-card:20px;--lxl-radius-panel:22px;--lxl-radius-pill:100px;
+ --lxl-shadow-card:0 8px 22px #123b7814;--lxl-shadow-hover:0 14px 28px #123b7826;
+ --lxl-space-1:4px;--lxl-space-2:8px;--lxl-space-3:12px;--lxl-space-4:16px;--lxl-space-5:20px;--lxl-space-6:24px;
+ --lxl-focus:var(--lxl-blue);--lxl-focus-width:3px;--lxl-focus-offset:4px;
+ --lxl-font:var(--learning-font);--lxl-weight-semibold:650;--lxl-weight-bold:750;--lxl-weight-heavy:850;
+}
