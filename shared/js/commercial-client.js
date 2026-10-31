@@ -11,7 +11,45 @@
  const safe=!!(config.enabled&&config.privacyApproved&&validURL(config.apiBase)&&validURL(config.privacyUrl));
  client.api=async(path,body,{key,token}={})=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{const r=await fetch(config.apiBase+path,{method:body?'POST':'GET',headers:{...(body?{'content-type':'application/json'}:{}),...(client.bearer?{authorization:'Bearer '+client.bearer}:{}),...(key?{'idempotency-key':key}:{}),...(token?{'x-exercise-token':token}:{})},body:body?JSON.stringify(body):undefined,signal:controller.signal});const result=await r.json();if(!r.ok)throw Object.assign(Error(result.error||'unavailable'),{code:result.error});return result;}finally{clearTimeout(timer)}};
  client.ready=safe?(async()=>{await new Promise(resolve=>setTimeout(resolve,0));for(let attempt=0;attempt<3;attempt++){try{const health=await client.api('/health');if(health.ready===true){client.enabled=true;return true}}catch{}if(attempt<2)await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));}return false;})():Promise.resolve(false);
- client.captcha=async container=>{if(!config.turnstileSiteKey)throw Error('captcha_configuration_required');if(!window.turnstile)await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.onload=resolve;script.onerror=reject;document.head.append(script)});if(container.dataset.sicWidget)window.turnstile.remove(container.dataset.sicWidget);container.replaceChildren();return new Promise((resolve,reject)=>{container.dataset.sicWidget=window.turnstile.render(container,{sitekey:config.turnstileSiteKey,callback:resolve,'error-callback':()=>reject(Error('captcha_failed')),'expired-callback':()=>reject(Error('captcha_expired'))});});};
+ const widgetScript='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+ let turnstileLoading=null;
+ const captchaAttempts=new WeakMap();
+ function loadTurnstile(){
+  if(window.turnstile?.ready&&window.turnstile?.render)return Promise.resolve(window.turnstile);
+  if(turnstileLoading)return turnstileLoading;
+  const loading=new Promise((resolve,reject)=>{
+   const script=document.createElement('script');let done=false;
+   const finish=error=>{if(done)return;done=true;clearTimeout(timer);script.onload=null;script.onerror=null;if(error){script.remove();reject(error)}else resolve(window.turnstile)};
+   const timer=setTimeout(()=>finish(Error('captcha_load_timeout')),15000);
+   script.src=widgetScript;script.async=true;script.defer=true;
+   script.onload=()=>finish(window.turnstile?.ready&&window.turnstile?.render?null:Error('captcha_unavailable'));
+   script.onerror=()=>finish(Error('captcha_load_failed'));document.head.append(script);
+  });
+  turnstileLoading=loading.catch(error=>{turnstileLoading=null;throw error});return turnstileLoading;
+ }
+ function removeWidget(container,sdk,id=container.dataset.sicWidget){if(id!==undefined){try{sdk?.remove(id)}catch{}}delete container.dataset.sicWidget;}
+ client.captcha=async container=>{
+  if(!safe||!await client.ready||!client.enabled)throw Error('commercial_not_ready');
+  if(typeof config.turnstileSiteKey!=='string'||!config.turnstileSiteKey.trim())throw Error('captcha_configuration_required');
+  if(!container?.isConnected)throw Error('captcha_cancelled');
+  captchaAttempts.get(container)?.cancel();
+  return new Promise((resolve,reject)=>{
+   let done=false,failed=false,sdk,id;
+   const finish=(error,token)=>{if(done)return;done=true;failed=!!error;clearTimeout(timer);if(captchaAttempts.get(container)===attempt)captchaAttempts.delete(container);if(error){removeWidget(container,sdk,id);reject(error)}else resolve(token)};
+   const attempt={cancel:()=>finish(Error('captcha_cancelled'))};captchaAttempts.set(container,attempt);
+   const timer=setTimeout(()=>finish(Error('captcha_timeout')),120000);
+   loadTurnstile().then(api=>{if(done)return;sdk=api;
+    try{sdk.ready(()=>{if(done)return;if(!container.isConnected)return finish(Error('captcha_cancelled'));
+     try{removeWidget(container,sdk);container.replaceChildren();
+      id=sdk.render(container,{sitekey:config.turnstileSiteKey.trim(),size:container.getBoundingClientRect().width<300?'compact':'flexible',
+       callback:token=>{if(!container.isConnected)return finish(Error('captcha_cancelled'));if(typeof token!=='string'||!token.trim()||token.length>2048)return finish(Error('captcha_invalid_response'));finish(null,token)},
+       'error-callback':()=>finish(Error('captcha_failed')),'expired-callback':()=>finish(Error('captcha_expired')),'timeout-callback':()=>finish(Error('captcha_timeout'))});
+      if(done&&failed)removeWidget(container,sdk,id);else container.dataset.sicWidget=String(id);
+     }catch{finish(Error('captcha_failed'))}
+    });}catch{finish(Error('captcha_failed'))}
+   }).catch(()=>finish(Error('captcha_unavailable')));
+  });
+ };
  function consent(){const label=node('label'),check=node('input');check.type='checkbox';check.required=true;check.name='consent';label.className='sic-consent';label.append(check,localized('span','consent'));const link=localized('a','privacy');link.href=config.privacyUrl;link.target='_blank';link.rel='noopener noreferrer';label.append(link);return label;}
  const field=(name,type='text')=>{const label=node('label'),input=node('input');input.type=type;input.name=name;input.required=true;input.maxLength=name==='email'?254:120;const span=node('span',text(name));span.dataset.sicText=name;label.append(span,input);return label};
  async function auth(path,body){if(!validURL(config.supabaseUrl)||!config.publishableKey)throw Error('identity_configuration_required');const r=await fetch(config.supabaseUrl+'/auth/v1/'+path,{method:'POST',headers:{apikey:config.publishableKey,'content-type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('identity_failed');return r.json();}

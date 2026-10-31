@@ -1,2 +1,2 @@
-/* Public configuration only. This phase has NOT activated remote services. */
-window.SIC_CONFIG={enabled:false,apiBase:'',supabaseUrl:'',publishableKey:'',turnstileSiteKey:'',privacyVersion:'sic-privacy-v1',privacyUrl:'',privacyApproved:false};
+/* Public configuration only. Candidate inactive; activation requires separate approval. */
+window.SIC_CONFIG={"enabled":false,"apiBase":"https://ostmuznlgtanjzolomgv.supabase.co/functions/v1/sic-commerce","supabaseUrl":"https://ostmuznlgtanjzolomgv.supabase.co","publishableKey":"sb_publishable_wKBaUE1awT8whZHnUZl0oA_XfKgws1C","turnstileSiteKey":"0x4AAAAAAFtnHNgol4ph1Y5O","privacyVersion":"sic-privacy-v1","privacyUrl":"https://say-it-correctly.github.io/Say-it-correctly.org/privacidad.html","privacyApproved":false};
