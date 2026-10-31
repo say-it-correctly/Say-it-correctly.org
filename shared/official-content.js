@@ -159,8 +159,7 @@ window.LXL_OFFICIAL_CONTENT={
         "fr": "Interjections ; préfixes et suffixes.",
         "pt": "Interjeições; prefixos e sufixos.",
         "zh-CN": "感叹词；前缀与后缀。"
-      },
-      "additionalURL": "https://www.sayitcorrectly.org/chapter-13"
+      }
     },
     {
       "number": 12,
@@ -189,14 +188,14 @@ window.LXL_OFFICIAL_CONTENT={
       "programme": "The official 12-chapter programme",
       "philosophy": "Teach yourself, one step at a time",
       "copy": "Our method invites you to learn on your own in an easy, friendly and pleasant way. It combines phonetics and grammar, sentence structure and syllable-by-syllable pronunciation. Images, animations and videos support memorization and repeated practice as you gradually develop your English skills.",
-      "chaptersNote": "The official 12-chapter index. Historical links follow each topic; chapter 11 retains separate links for interjections and prefixes and suffixes. Chapter content has not been migrated.",
+      "chaptersNote": "Official index of 12 chapters. Historical links follow each topic; additional learning resources are listed separately. Chapter content has not been migrated.",
       "legacy": "Previous website · migration pending",
       "gamesTitle": "Keep practicing",
       "gamesCopy": "Practice here with Parts of the Body and the free knowledge check, or explore the previous website’s house-items games.",
       "legacyGames": "Explore the original games",
       "methodLink": "Method and course information",
       "external": "Opens the previous website in a new tab; its language is independent of this platform.",
-      "additionalChapterLink": "Prefixes & Suffixes"
+      "additionalResourcesTitle": "Additional learning resources"
     },
     "zh-CN": {
       "nav": "探索平台",
@@ -209,14 +208,14 @@ window.LXL_OFFICIAL_CONTENT={
       "programme": "官方12章课程",
       "philosophy": "循序渐进，自主学习",
       "copy": "我们的方法鼓励你以轻松、友好、愉快的方式自主学习。它结合语音、语法、句子结构以及逐音节发音，通过图片、动画和视频辅助记忆与反复练习，逐步发展英语技能。",
-      "chaptersNote": "官方12章目录。历史链接按主题对应；第11章保留感叹词及前缀与后缀的独立链接。章节内容尚未迁移。",
+      "chaptersNote": "官方目录共12章。历史链接按主题对应；补充学习资源单独列出。章节正文尚未迁移。",
       "legacy": "旧网站 · 待迁移",
       "gamesTitle": "继续练习",
       "gamesCopy": "在这里练习身体部位和免费知识测试，或探索旧网站的家居物品游戏。",
       "legacyGames": "探索原有游戏",
       "methodLink": "教学方法与课程说明",
       "external": "在新标签页打开旧网站；其语言独立于本平台。",
-      "additionalChapterLink": "前缀与后缀"
+      "additionalResourcesTitle": "补充学习资源"
     },
     "fr": {
       "nav": "Explorer la plateforme",
@@ -229,14 +228,14 @@ window.LXL_OFFICIAL_CONTENT={
       "programme": "Le programme officiel en 12 chapitres",
       "philosophy": "Apprendre par soi-même, étape par étape",
       "copy": "Notre méthode invite à apprendre de manière autonome, facile, conviviale et agréable. Elle associe phonétique, grammaire, structure des phrases et prononciation syllabe par syllabe. Images, animations et vidéos accompagnent la mémorisation et la pratique régulière pour développer progressivement les compétences en anglais.",
-      "chaptersNote": "Index officiel en 12 chapitres. Les liens historiques suivent chaque thème ; le chapitre 11 conserve des liens distincts pour les interjections et les préfixes et suffixes. Le contenu des chapitres n’est pas migré.",
+      "chaptersNote": "Index officiel de 12 chapitres. Les liens historiques suivent chaque thème ; les ressources pédagogiques complémentaires sont présentées séparément. Le contenu des chapitres n’a pas été migré.",
       "legacy": "Ancien site · migration à venir",
       "gamesTitle": "Continuer à pratiquer",
       "gamesCopy": "Pratiquez ici les parties du corps et le test gratuit de connaissances, ou explorez les jeux sur les objets de la maison de l’ancien site.",
       "legacyGames": "Explorer les jeux originaux",
       "methodLink": "Méthode et présentation du cours",
       "external": "Ouvre l’ancien site dans un nouvel onglet ; sa langue est indépendante de cette plateforme.",
-      "additionalChapterLink": "Préfixes et suffixes"
+      "additionalResourcesTitle": "Ressources pédagogiques complémentaires"
     },
     "pt": {
       "nav": "Explore a plataforma",
@@ -249,14 +248,14 @@ window.LXL_OFFICIAL_CONTENT={
       "programme": "O programa oficial de 12 capítulos",
       "philosophy": "Aprenda por conta própria, passo a passo",
       "copy": "Nosso método convida você a aprender por conta própria de forma fácil, amigável e agradável. Combina fonética, gramática, estrutura das frases e pronúncia sílaba por sílaba. Imagens, animações e vídeos apoiam a memorização e a prática frequente para desenvolver progressivamente as habilidades de inglês.",
-      "chaptersNote": "Índice oficial de 12 capítulos. Os links históricos acompanham cada tema; o capítulo 11 mantém links separados para interjeições e prefixos e sufixos. O conteúdo dos capítulos não foi migrado.",
+      "chaptersNote": "Índice oficial de 12 capítulos. Os links históricos acompanham cada tema; os recursos educativos adicionais são apresentados separadamente. O conteúdo dos capítulos não foi migrado.",
       "legacy": "Site anterior · migração pendente",
       "gamesTitle": "Continue praticando",
       "gamesCopy": "Pratique aqui as partes do corpo e o teste grátis de conhecimentos, ou explore os jogos de objetos da casa no site anterior.",
       "legacyGames": "Explorar os jogos originais",
       "methodLink": "Método e informações do curso",
       "external": "Abre o site anterior em nova aba; o idioma dele é independente desta plataforma.",
-      "additionalChapterLink": "Prefixos e sufixos"
+      "additionalResourcesTitle": "Recursos educativos adicionais"
     },
     "es": {
       "nav": "Explora la plataforma",
@@ -269,15 +268,27 @@ window.LXL_OFFICIAL_CONTENT={
       "programme": "El programa oficial de 12 capítulos",
       "philosophy": "Autoaprendizaje, paso a paso",
       "copy": "Nuestro método invita a aprender por cuenta propia de una forma fácil, amistosa y agradable. Combina fonética, gramática, estructura de las oraciones y pronunciación por sílabas. Las imágenes, animaciones y videos apoyan la memorización y la práctica constante para desarrollar progresivamente las habilidades de inglés.",
-      "chaptersNote": "Índice oficial de 12 capítulos. Los enlaces históricos corresponden a cada tema; el capítulo 11 conserva enlaces separados para interjecciones y prefijos y sufijos. El contenido de los capítulos no está migrado.",
+      "chaptersNote": "Índice oficial de 12 capítulos. Los enlaces históricos corresponden a cada tema; los recursos educativos adicionales se presentan por separado. El contenido de los capítulos no está migrado.",
       "legacy": "Sitio anterior · migración pendiente",
       "gamesTitle": "Sigue practicando",
       "gamesCopy": "Practica aquí las partes del cuerpo y el test gratuito de conocimientos, o explora los juegos de objetos de la casa en el sitio anterior.",
       "legacyGames": "Explorar los juegos originales",
       "methodLink": "Método e información del curso",
       "external": "Abre el sitio anterior en otra pestaña; su idioma es independiente de esta plataforma.",
-      "additionalChapterLink": "Prefijos y sufijos"
+      "additionalResourcesTitle": "Recursos educativos adicionales"
     }
   },
-  "documentSource": "Client index, PDF page 9 (printed page 10); official 12 chapters confirmed in task dated 2026-10-30"
+  "documentSource": "Client index, PDF page 9 (printed page 10); official 12 chapters confirmed in task dated 2026-10-30",
+  "additionalResources": [
+    {
+      "url": "https://www.sayitcorrectly.org/chapter-13",
+      "titles": {
+        "en": "Prefixes & Suffixes",
+        "zh-CN": "前缀与后缀",
+        "fr": "Préfixes et suffixes",
+        "pt": "Prefixos e sufixos",
+        "es": "Prefijos y sufijos"
+      }
+    }
+  ]
 };

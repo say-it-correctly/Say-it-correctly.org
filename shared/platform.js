@@ -71,7 +71,8 @@
   const comparison=window.LXL_HOME_TEXTS?.['#method-comparison']?.[LXL.lang];if(comparison){const p=node('p',comparison);p.id='method-comparison';wrap.append(p)}
   const title=node('h3',text.programme);title.id='official-programme-title';wrap.append(title,node('p',text.chaptersNote));
   const list=node('ol');list.className='official-chapters';
-  for(const chapter of data.chapters){const li=node('li'),a=external(chapter.titles[LXL.lang],chapter.url,text.external);a.lang=LXL.lang;li.append(a);if(chapter.additionalURL)li.append(external(text.additionalChapterLink,chapter.additionalURL,text.external));const note=node('small',text.legacy);li.append(note);list.append(li)}wrap.append(list);
+  for(const chapter of data.chapters){const li=node('li'),a=external(chapter.titles[LXL.lang],chapter.url,text.external);a.lang=LXL.lang;li.append(a);const note=node('small',text.legacy);li.append(note);list.append(li)}wrap.append(list);
+  const additional=node('section');additional.className='method-supplementary';additional.setAttribute('aria-labelledby','method-supplementary-title');const additionalTitle=node('h3',text.additionalResourcesTitle);additionalTitle.id='method-supplementary-title';additional.append(additionalTitle);for(const resource of data.additionalResources){const p=node('p'),a=external(resource.titles[LXL.lang],resource.url,text.external);a.className='lxl-link supplementary-resource';p.append(a);additional.append(p)}wrap.append(additional);
  }
  // Navigation/content only: exercise state, audio and tutorial are untouched.
  document.addEventListener('lxl-language-change',render);render();
