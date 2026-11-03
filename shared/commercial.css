@@ -87,3 +87,37 @@
 .sic-postsix-consent{display:flex!important;align-items:flex-start;gap:9px}.sic-postsix-consent input{flex:none;margin-top:4px}.sic-postsix-form .btn{width:100%}
 .sic-free-captcha{min-height:60px}.sic-postsix-form [role=status]{font-size:13px}
 @media(max-width:520px){.sic-postsix-form{grid-template-columns:1fr}.sic-postsix-form>*{grid-column:1!important}}
+
+/* SIC POST SIX V4 — Formulario aprobado, dos columnas compactas en escritorio */
+.overlay:has(.sic-request-content){padding:12px;align-items:center;overflow-y:auto;}
+.overlay:has(.sic-request-content) .dialog{width:min(850px,calc(100vw - 24px));padding:clamp(16px,2.2vh,25px) clamp(18px,3vw,30px);max-height:none;overflow:visible;}
+.sic-request-content{display:flex;flex-direction:column;gap:7px;min-width:0;}
+.sic-request-content>h2{margin:0 36px 0 0;font-size:clamp(20px,2vw,27px);line-height:1.15;}
+.sic-request-content .sic-request-intro{margin:0;font-size:13px;line-height:1.4;max-width:760px;}
+.sic-request-progress{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:12px;background:#ebf5ff;color:#123b78;font-size:12px;}
+.sic-request-progress strong{color:#187547;font-size:15px;}
+.sic-request-content .sic-postsix-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 14px;margin:0;align-items:start;}
+.sic-request-content .sic-postsix-form>label{display:flex;flex-direction:column;gap:4px;min-width:0;font-weight:700;font-size:12px;grid-column:auto;}
+.sic-request-content .sic-postsix-form>label.sic-postsix-email,.sic-request-content .sic-postsix-form>label.sic-postsix-message{grid-column:1/-1;}
+.sic-request-content .sic-postsix-form input:not([type=checkbox]),.sic-request-content .sic-postsix-form textarea{width:100%;min-width:0;min-height:38px;margin:0;border:1px solid #bcd0e7;border-radius:9px;padding:8px 11px;font:inherit;font-size:13px;}
+.sic-request-content .sic-postsix-form textarea{min-height:58px;max-height:100px;resize:vertical;line-height:1.35;}
+.sic-postsix-legal,.sic-postsix-captcha,.sic-postsix-actions,.sic-request-status{grid-column:1/-1;}
+.sic-postsix-legal{display:flex;flex-wrap:wrap;gap:5px 24px;font-size:12px;}
+.sic-postsix-legal label{display:flex;align-items:flex-start;gap:7px;min-width:0;}
+.sic-postsix-legal input{margin:2px 0 0;flex:none;width:16px;height:16px;}
+.sic-postsix-legal a{text-decoration:underline;text-underline-offset:2px;}
+.sic-postsix-captcha{min-height:40px;}
+.sic-postsix-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.sic-postsix-actions .btn{min-height:42px;margin:0;padding:9px 10px;width:100%;font-size:13px;}
+.sic-whatsapp-link[aria-disabled=true]{opacity:.48;pointer-events:none;cursor:not-allowed;background:#e9eef6;}
+.sic-request-content .sic-request-status{font-size:12px;line-height:1.4;margin:0;color:#355476;}
+@media(min-width:701px) and (max-height:710px){.overlay:has(.sic-request-content){align-items:flex-start;}.overlay:has(.sic-request-content) .dialog{margin:auto;}}
+@media(max-width:700px){.overlay:has(.sic-request-content){align-items:flex-start;padding:8px;}.overlay:has(.sic-request-content) .dialog{margin:auto;width:min(100%,560px);max-height:none;overflow:visible;padding:18px;}.sic-request-content .sic-postsix-form{grid-template-columns:1fr;gap:10px;}.sic-request-content .sic-postsix-form>*{grid-column:1/-1!important;}.sic-postsix-legal{display:grid;gap:8px;}}
+@media(max-width:380px){.sic-postsix-actions{grid-template-columns:1fr;}}
+/* Inicio gratuito: una sola columna útil, sin espacio en blanco permanente */
+.overlay:has(.sic-free-captcha) .dialog{width:min(500px,calc(100vw - 24px));max-height:none;overflow:visible;padding:clamp(18px,3vh,28px);}
+.overlay:has(.sic-free-captcha) #dialog-content{display:flex;flex-direction:column;gap:11px;}
+.overlay:has(.sic-free-captcha) #dialog-content>h2{font-size:clamp(21px,2.2vw,26px);line-height:1.2;margin:0 22px 0 0;}
+.overlay:has(.sic-free-captcha) #dialog-content>p{margin:0;font-size:13px;}
+.overlay:has(.sic-free-captcha) #dialog-content>button{width:100%;min-height:44px;margin:0;}
+@media(max-height:560px){.overlay:has(.sic-free-captcha),.overlay:has(.sic-request-content){align-items:flex-start;}}

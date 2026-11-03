@@ -116,37 +116,52 @@
  client.mountRequest=container=>{
   container.replaceChildren();
   const heading=node('h2','¡Completaste tus 6 aciertos gratuitos!');heading.id='dialog-title';
-  const lead=node('p','Para continuar, registra tus datos. Iván te contactará para verificar el pago externo de USD 1.');
-  const form=node('form');form.className='sic-postsix-form';
+  const intro=node('p','Has terminado tu práctica gratuita. Registra tu solicitud para que Iván verifique externamente el pago de USD 1 y, después, te entregue tu token de acceso.');intro.className='sic-request-intro';
+  const progress=node('div');progress.className='sic-request-progress';progress.append(node('span','Práctica gratuita completada'),node('strong','6/6'));
+  const form=node('form');form.className='sic-postsix-form';form.noValidate=false;
   for(const [name,label,type] of [['name','Nombre completo','text'],['phone','Teléfono / WhatsApp','tel'],['email','Correo electrónico','email']]){
    const wrap=node('label'),caption=node('span',label),field=node('input');field.name=name;field.type=type;field.required=true;field.maxLength=name==='email'?254:name==='phone'?32:120;if(name==='phone')field.minLength=7;
-   wrap.append(caption,field);form.append(wrap);
+   field.autocomplete=name==='name'?'name':name==='phone'?'tel':'email';field.placeholder=name==='name'?'Tu nombre y apellido':name==='phone'?'Número de contacto':'tu@correo.com';
+   wrap.className='sic-postsix-'+name;wrap.append(caption,field);form.append(wrap);
   }
-  const message=node('label');message.textContent='Mensaje (opcional)';const messageInput=node('textarea');messageInput.name='message';messageInput.maxLength=3000;messageInput.rows=2;message.append(messageInput);form.append(message);
-  const legal=node('label');legal.className='sic-postsix-consent';const check=node('input');check.type='checkbox';check.name='consent';check.required=true;
-  const legalText=node('span','Acepto el tratamiento de mis datos y los términos del servicio. ');
-  const privacy=node('a','Aviso de privacidad');privacy.href=config.privacyUrl;privacy.target='_blank';privacy.rel='noopener noreferrer';
-  const terms=node('a','Términos');terms.href=config.termsUrl;terms.target='_blank';terms.rel='noopener noreferrer';legalText.append(privacy,node('span',' · '),terms);legal.append(check,legalText);form.append(legal);
-  const captchaBox=node('div');form.append(captchaBox);
-  const submit=node('button','Registrar solicitud');submit.type='submit';submit.className='btn btn-blue';form.append(submit);
-  const whats=node('button','Abrir WhatsApp de Iván');whats.type='button';whats.className='btn btn-white';whats.hidden=true;form.append(whats);
-  const state=node('p');state.setAttribute('role','status');state.setAttribute('aria-live','polite');form.append(state);
-  container.append(heading,lead,form);
+  const message=node('label');message.className='sic-postsix-message';message.append(node('span','Mensaje para Iván (editable)'));
+  const messageInput=node('textarea');messageInput.name='message';messageInput.maxLength=3000;messageInput.rows=2;
+  messageInput.value='Hola Iván, completé mis 6 aciertos gratuitos en Say It Correctly. Quiero continuar con el acceso de 7 días por USD 1. Quedo pendiente de la verificación del pago y del envío del token. Gracias.';
+  message.append(messageInput);form.append(message);
+  const legal=node('div');legal.className='sic-postsix-legal';
+  const privacyLabel=node('label'),privacyCheck=node('input');privacyCheck.type='checkbox';privacyCheck.name='consent';privacyCheck.required=true;
+  const privacyCopy=node('span','Acepto el tratamiento de mis datos. '),privacy=node('a','Aviso de privacidad');privacy.href=config.privacyUrl;privacy.target='_blank';privacy.rel='noopener noreferrer';privacyCopy.append(privacy);privacyLabel.append(privacyCheck,privacyCopy);
+  const termsLabel=node('label'),termsCheck=node('input');termsCheck.type='checkbox';termsCheck.name='termsAccepted';termsCheck.required=true;
+  const termsCopy=node('span','Acepto los '),terms=node('a','términos del servicio');terms.href=config.termsUrl;terms.target='_blank';terms.rel='noopener noreferrer';termsCopy.append(terms);termsLabel.append(termsCheck,termsCopy);
+  legal.append(privacyLabel,termsLabel);form.append(legal);
+  const captchaBox=node('div');captchaBox.className='sic-postsix-captcha';form.append(captchaBox);
+  const actions=node('div');actions.className='sic-postsix-actions';
+  const submit=node('button','Registrar solicitud');submit.type='submit';submit.className='btn btn-blue';
+  const whatsapp=node('a','Abrir WhatsApp de Iván');whatsapp.className='btn btn-white sic-whatsapp-link';whatsapp.setAttribute('aria-disabled','true');whatsapp.tabIndex=-1;whatsapp.title='Disponible después de registrar la solicitud';
+  actions.append(submit,whatsapp);form.append(actions);
+  const state=node('p','Primero registra tu solicitud. Después podrás abrir WhatsApp para enviarla a Iván.');state.className='sic-request-status';state.setAttribute('role','status');state.setAttribute('aria-live','polite');form.append(state);
+  container.classList.add('sic-request-content');container.append(heading,intro,progress,form);
   const number=typeof config.whatsappNumber==='string'&&/^[1-9]\d{9,14}$/.test(config.whatsappNumber)?config.whatsappNumber:null;
-  let receipt=null;
-  form.onsubmit=async e=>{e.preventDefault();if(receipt||!form.reportValidity())return;
-   if(!config.requestsEnabled||!config.privacyApproved||!number){state.textContent='Las solicitudes no están disponibles en este momento.';return;}
-   submit.disabled=true;
-   try{const captchaToken=await client.captcha(captchaBox);const payload={kind:'access',name:form.elements.name.value.trim(),phone:form.elements.phone.value.trim(),email:form.elements.email.value.trim(),message:form.elements.message.value.trim()||'Solicitud de continuidad de Parts of the Body',lang:window.LXL?.lang||'es',consent:true,consentVersion:config.privacyVersion,termsAccepted:true,termsVersion:config.termsVersion,captchaToken};
+  let busy=false,receipt=null;
+  whatsapp.onclick=e=>{if(!receipt){e.preventDefault();return;}state.textContent='Se abrió WhatsApp. Debes pulsar Enviar allí; el sistema no confirma la entrega ni la recepción.';};
+  form.onsubmit=async event=>{
+   event.preventDefault();if(busy||receipt||!form.reportValidity())return;
+   if(!config.requestsEnabled||!config.privacyApproved||!number){state.textContent='No es posible registrar solicitudes en este momento.';return;}
+   busy=true;submit.disabled=true;state.textContent='Validando y registrando tu solicitud…';
+   try{
+    const captchaToken=await client.captcha(captchaBox);
+    const payload={kind:'access',name:form.elements.name.value.trim(),phone:form.elements.phone.value.trim(),email:form.elements.email.value.trim(),message:messageInput.value.trim(),lang:window.LXL?.lang||'es',consent:privacyCheck.checked,consentVersion:config.privacyVersion,termsAccepted:termsCheck.checked,termsVersion:config.termsVersion,captchaToken};
     const result=await client.api('/requests',payload);
-    if(result?.received!==true||typeof result.id!=='string')throw Error('request_receipt_invalid');
-    receipt={...payload,id:result.id};submit.hidden=true;whats.hidden=false;state.textContent='Solicitud registrada. Ahora abre WhatsApp y pulsa Enviar para contactar a Iván.';
-   }catch(error){state.textContent=client.errorText(error);submit.disabled=false;}
-  };
-  whats.onclick=()=>{if(!receipt||!number)return;
-   const msg=`Hola Iván, soy ${receipt.name}. Solicité continuar Say It Correctly. Solicitud: ${receipt.id}. Correo: ${receipt.email}. Teléfono: ${receipt.phone}. Quiero coordinar el pago externo de USD 1. Entiendo que confirmarás el pago antes de generar mi token.`;
-   window.open('https://wa.me/'+number+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
-   state.textContent='WhatsApp abierto. Debes pulsar Enviar allí; no podemos confirmar la recepción automáticamente.';
+    if(result?.received!==true||typeof result.id!=='string'||!/^[a-zA-Z0-9_-]{8,100}$/.test(result.id))throw Error('request_receipt_invalid');
+    receipt={...payload,id:result.id};
+    const messageToSend=messageInput.value.trim()+'\n\nSolicitud SIC: '+receipt.id+'\nNombre: '+receipt.name+'\nCorreo: '+receipt.email+'\nTeléfono: '+receipt.phone+'\nPago USD 1: pendiente de confirmación manual de Iván.';
+    whatsapp.href='https://wa.me/'+number+'?text='+encodeURIComponent(messageToSend);
+    whatsapp.target='_blank';whatsapp.rel='noopener noreferrer';whatsapp.removeAttribute('aria-disabled');whatsapp.removeAttribute('title');whatsapp.tabIndex=0;
+    submit.textContent='Solicitud registrada';submit.disabled=true;
+    for(const field of form.querySelectorAll('input,textarea'))field.disabled=true;
+    state.textContent='Solicitud registrada: '+receipt.id+'. Pulsa Abrir WhatsApp de Iván y envía allí el mensaje.';
+   }catch(error){state.textContent='No se pudo registrar la solicitud. Inténtalo nuevamente. '+(error?.code?'Código: '+error.code:'');submit.disabled=false;}
+   finally{busy=false;}
   };
  };
  client.startTrial=async()=>{
