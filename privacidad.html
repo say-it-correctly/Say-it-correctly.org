@@ -43,8 +43,8 @@
 
   <main class="wrap privacy-page" id="contenido">
     <a href="home/index.html">Volver al inicio</a>
-    <h1>Aviso de privacidad</h1>
-    <p>Versión del aviso: <strong>sic-privacy-v1</strong>.</p>
+    <h1>Aviso de privacidad</h1><p class="privacy-status"><strong>Borrador de revisión v2 — no vigente ni publicado.</strong> Se incorporaron las condiciones comerciales aprobadas. Los aspectos de tratamiento y elegibilidad que se indican como pendientes requieren decisión expresa del responsable antes de habilitar solicitudes.</p>
+    <p>Versión del aviso: <strong>sic-privacy-v2</strong>.</p>
 
     <section aria-labelledby="responsable">
       <h2 id="responsable">1. Institución, responsable y contactos</h2>
@@ -68,7 +68,7 @@
       <h2 id="alcance">2. Alcance y datos tratados</h2>
       <p>Este aviso describe las funciones existentes o preparadas de la plataforma. Cada tratamiento se realiza cuando se utiliza la función correspondiente y esta se encuentra habilitada; la descripción no afirma que todos los servicios estén actualmente activos.</p>
       <ul>
-        <li><strong>Consultas y solicitudes:</strong> nombre, correo, mensaje, idioma, categoría de consulta y nivel de inglés cuando se proporciona. También se registra el consentimiento, su fecha y la versión del aviso asociada.</li>
+        <li><strong>Consultas y solicitudes:</strong> nombre, correo, teléfono para solicitudes de acceso, aceptación y versión de términos, mensaje, idioma, categoría de consulta y nivel de inglés cuando se proporciona. También se registra el consentimiento, su fecha y la versión del aviso asociada.</li>
         <li><strong>Identidad y acceso:</strong> correo verificado, identificador de usuario, sesiones y datos técnicos necesarios para el acceso mediante códigos de un solo uso. Los códigos y tokens de sesión deben mantenerse confidenciales.</li>
         <li><strong>Ejercicio y permisos:</strong> intentos, aciertos, progreso, sesiones de práctica y datos de emisión, renovación, vencimiento y revocación de permisos.</li>
         <li><strong>Verificación manual de pagos:</strong> referencia externa, importe, moneda, solicitud y usuario asociados, fecha, verificador y anotaciones administrativas necesarias. La plataforma no incluye una pasarela que cobre automáticamente ni solicita números completos de tarjeta, códigos de seguridad o contraseñas bancarias.</li>
@@ -84,10 +84,10 @@
         <li>Verificar identidad, proteger sesiones y evitar accesos no autorizados, fraude o abuso.</li>
         <li>Validar en el servidor la práctica gratuita y el acceso autorizado al ejercicio.</li>
         <li>Registrar la verificación manual del pago, administrar permisos y controlar el cupo contratado de activaciones.</li>
-        <li>Mantener trazabilidad administrativa y gestionar avisos relacionados con solicitudes, acceso y vencimiento, cuando el correo esté habilitado.</li>
+        <li>Mantener trazabilidad administrativa y facilitar la comunicación de solicitudes mediante WhatsApp cuando la persona solicitante decida enviarlas. El aviso automático por correo está diferido.</li>
         <li>Atender consultas y reclamos sobre datos personales y las obligaciones que resulten aplicables.</li>
       </ul>
-      <p>El ejercicio contempla 24 palabras y seis aciertos gratuitos. Cada permiso pagado corresponde a USD 1 por siete días, con pago externo verificado manualmente. El cupo de 50 activaciones es acumulativo e incluye renovaciones; su control requiere conservar trazabilidad. Estas reglas comerciales no fijan por sí mismas el plazo de conservación de datos personales.</p>
+      <p>El ejercicio contempla 24 palabras y seis aciertos gratuitos; los once juegos externos siguen siendo gratuitos. Cada permiso pagado corresponde a USD 1 por siete días consecutivos desde la generación automática del token, después de verificar manualmente el pago externo. El canje tardío no reinicia el plazo. Después hay tres días adicionales para renovar sin acceso; cada renovación exige nuevo pago confirmado y nuevo token. Los diez días corresponden exclusivamente al período operativo de siete días de acceso más tres de renovación. Sin renovación, el perfil queda sujeto a la depuración que finalmente se apruebe; no implica eliminar automáticamente pagos, consentimientos, auditorías, respaldos o el contador acumulativo. El cupo de 50 activaciones es acumulativo e incluye renovaciones; su control requiere conservar trazabilidad. Estas reglas comerciales no fijan por sí mismas el plazo de conservación de datos personales.</p>
       <p>La autorización solicitada para estas funciones no comprende publicidad, venta de datos ni finalidades ajenas a las descritas. Cualquier finalidad adicional debe evaluarse e informarse antes de su uso y contar con la autorización que corresponda.</p>
     </section>
 
@@ -99,7 +99,7 @@
 
     <section aria-labelledby="proveedores">
       <h2 id="proveedores">5. Servicios que intervienen y acceso a la información</h2>
-      <p>Según la función habilitada, la arquitectura contempla GitHub Pages para la web; Supabase para autenticación, base de datos y funciones de servidor; Cloudflare Turnstile para CAPTCHA; y Resend para notificaciones cuando se habilite el correo. El contacto oficial indicado utiliza Gmail. Estos servicios pueden recibir los datos necesarios para cumplir su función.</p>
+      <p>La arquitectura preparada contempla GitHub Pages para alojar la web, Supabase para autenticación, base de datos y funciones de servidor, y Cloudflare Turnstile para la comprobación de seguridad cuando esté habilitada. Para la gestión comercial provisional se propone WhatsApp mediante un enlace con mensaje prellenado. El usuario debe pulsar «Enviar» en WhatsApp; abrir el enlace no demuestra que el mensaje se haya transmitido ni recibido. Al utilizar WhatsApp se aplican también las condiciones y el tratamiento de datos de ese proveedor. La notificación automática por Gmail/Resend está diferida y no se presenta como servicio operativo. El correo institucional de contacto de privacidad es un canal de atención, no una confirmación de avisos automáticos.</p>
       <p>El acceso administrativo y de soporte debe limitarse a personas autorizadas. El alcance de un eventual soporte LXL y su acceso a datos deben quedar definidos y ser revocables conforme al acuerdo aplicable; entregar herramientas técnicas no autoriza usos propios de la información de los estudiantes.</p>
       <p>Los enlaces a YouTube, capítulos o actividades externas conducen a servicios sujetos a sus propios avisos. La plataforma no debe remitirles datos de solicitudes o pagos por el solo hecho de mostrar sus enlaces.</p>
       <p><strong>Pendiente:</strong> confirmar la relación contractual con los proveedores, las ubicaciones efectivas de tratamiento y almacenamiento y las condiciones aplicables a transmisiones o transferencias internacionales. No se afirma que todos los datos permanezcan en Colombia.</p>
@@ -109,7 +109,7 @@
       <h2 id="almacenamiento">6. Navegador, conservación y seguridad</h2>
       <p>La web guarda la preferencia de idioma en el almacenamiento local del navegador. El cliente comercial revisado mantiene sus tokens de acceso en memoria, sin guardarlos de forma persistente en ese almacenamiento. El alojamiento y los proveedores externos pueden aplicar mecanismos técnicos adicionales conforme a su configuración y políticas.</p>
       <p>La arquitectura incluye verificación de identidad y permisos, controles de servidor, conexiones protegidas y auditoría. No se ofrece una garantía absoluta de seguridad ni se afirma que todas las configuraciones de los proveedores hayan sido verificadas en producción.</p>
-      <p><strong>Los plazos y criterios definitivos de conservación, supresión y tratamiento de respaldos están pendientes de aprobación.</strong> Deben establecerse por categoría de datos y finalidad, considerando las obligaciones aplicables. El vencimiento del permiso a los siete días no implica automáticamente el borrado del historial; tampoco el cupo acumulativo justifica una conservación indefinida de datos personales.</p>
+      <p><strong>El perfil operativo dispone de una ventana de diez días desde la emisión del token (siete de acceso y tres adicionales para pedir renovación). Los plazos y criterios definitivos de conservación, supresión, solicitudes sin pago, auditoría y tratamiento de respaldos siguen pendientes de aprobación.</strong> Deben establecerse por categoría de datos y finalidad, considerando las obligaciones aplicables. El vencimiento del permiso a los siete días no implica automáticamente el borrado del historial; tampoco el cupo acumulativo justifica una conservación indefinida de datos personales.</p>
     </section>
 
     <section aria-labelledby="derechos">
@@ -121,22 +121,22 @@
 
     <section aria-labelledby="menores">
       <h2 id="menores">8. Niños, niñas y adolescentes</h2>
-      <p>Say It Correctly contempla la participación de niños, niñas y adolescentes en sus actividades educativas con acompañamiento de su madre, padre o representante legal. Antes de registrar o tratar datos personales de un menor, será necesaria la autorización previa, expresa e informada de quien ejerza legalmente su representación, obtenida y conservada mediante un mecanismo verificable.</p>
-      <p>El tratamiento deberá respetar el interés superior del menor, sus derechos fundamentales y su derecho a ser escuchado, de acuerdo con su edad y madurez. Solo se solicitarán los datos necesarios para gestionar el aprendizaje, la identidad, el progreso educativo y los permisos de acceso correspondientes.</p>
+      <p>Los materiales educativos pueden interesar a niños, niñas y adolescentes, pero el formulario de solicitudes, el registro comercial y la emisión de accesos para menores NO están habilitados. Esta descripción educativa no equivale a autorizar la recolección de sus datos personales. Si se plantea habilitarla en el futuro, se necesitarán medidas adicionales con sus representantes legales. Antes de registrar o tratar datos personales de un menor, será necesaria la autorización previa, expresa e informada de quien ejerza legalmente su representación, obtenida y conservada mediante un mecanismo verificable.</p>
+      <p>El tratamiento deberá respetar el interés superior del menor, sus derechos fundamentales y su derecho a ser escuchado, de acuerdo con su edad y madurez. En un eventual servicio para menores solo se podrán solicitar los datos estrictamente necesarios, tras aprobar e implementar los controles exigibles.</p>
       <p>La madre, padre o representante legal podrá formular solicitudes relativas a los datos del menor mediante <a href="mailto:say.it.correctly.github@gmail.com">say.it.correctly.github@gmail.com</a>, sujetas a la verificación proporcional de su identidad y representación.</p>
-      <p><strong>Condición de habilitación:</strong> mientras no exista un mecanismo implementado para comprobar la representación y obtener y registrar la autorización correspondiente, el registro y tratamiento de datos personales de menores permanecerá deshabilitado. Una casilla general de consentimiento o el acompañamiento informal de un adulto no sustituyen esa autorización.</p>
+      <p><strong>Condición de habilitación:</strong> mientras no exista un mecanismo implementado para comprobar la representación y obtener y registrar la autorización correspondiente, el registro y tratamiento de datos personales de menores mediante las funciones comerciales permanecerá deshabilitado. La acreditación de mayoría de edad para solicitantes adultos también requiere una definición operativa previa a la habilitación. Una casilla general de consentimiento o el acompañamiento informal de un adulto no sustituyen esa autorización.</p>
     </section>
 
     <section class="privacy-pending" aria-labelledby="pendientes">
       <h2 id="pendientes">9. Información y condiciones de tratamiento por completar</h2>
       <ul>
         <li>Identificación adicional del responsable, si corresponde.</li>
-        <li>Plazos o criterios concretos de conservación y eliminación por categoría de datos, incluidos respaldos y auditoría.</li>
-        <li>Proveedores efectivamente habilitados, alcance contractual de encargados y soporte, ubicaciones y condiciones del tratamiento internacional.</li>
-        <li>Implementación y validación del mecanismo de comprobación de representación y autorización de menores antes de habilitar sus registros; por ahora, esa función permanecerá deshabilitada.</li>
-        <li>Política de tratamiento y procedimiento de consultas y reclamos aplicables, y fecha de entrada en vigor.</li>
+        <li>Solicitudes sin pago: plazo o criterio de conservación; plazos de eliminación por categoría, excepciones, evidencias y responsables; respaldos y auditoría.</li>
+        <li>Proveedores efectivamente habilitados y sus condiciones contractuales; acceso técnico de LXL; ubicaciones y tratamiento internacional.</li>
+        <li>Implementación y validación de la acreditación adulta; mecanismo de comprobación de representación y autorización de menores si se plantease habilitarlos; por ahora, sus registros permanecen deshabilitados.</li>
+        <li>Responsable y procedimiento operativo de consultas, reclamos y derechos, así como plazos legales aplicables, identificación adicional si corresponde, fecha de entrada en vigor y constancia de aprobación de la versión completa.</li>
       </ul>
-      <p>La institución, el enfoque educativo, el responsable, la dirección institucional y domicilio del responsable, y los contactos institucionales y de privacidad consignados en este documento ya fueron confirmados. La confirmación del domicilio está resuelta y no forma parte de los pendientes. La aprobación del texto no completa por sí sola los datos y condiciones indicados en esta sección ni acredita la implementación del mecanismo para menores.</p>
+      <p>La institución, el enfoque educativo, el responsable, la dirección institucional y domicilio del responsable, y los contactos institucionales y de privacidad consignados en este documento ya fueron confirmados. La confirmación del domicilio no forma parte de los pendientes. La aprobación del flujo comercial o de este borrador no sustituye la aprobación de las decisiones abiertas, la comprobación de la elegibilidad adulta ni la validación del tratamiento de datos.</p>
     </section>
   </main>
 
