@@ -55,10 +55,21 @@ function audioVoiceMessage(key,vars,detail){
 // Close facial markers retain their approved hit areas. Resolve overlapping
 // areas by the nearest centre instead of whichever button is last in the DOM.
 function markerAtPoint(x,y){
-if(!document.elementFromPoint(x,y)?.closest('.target'))return null;
-let nearest=null,distance=Infinity;
-for(const dot of document.querySelectorAll('.target')){const r=dot.getBoundingClientRect();if(x<r.left||x>r.right||y<r.top||y>r.bottom)continue;const delta=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2));if(delta<distance){nearest=dot;distance=delta}}
-return nearest;
+ const figure=document.getElementById('figure');
+ const area=figure.getBoundingClientRect();
+ if(x<area.left||x>area.right||y<area.top||y>area.bottom)return null;
+ let nearest=null,distance=Infinity;
+ for(const dot of document.querySelectorAll('.target')){
+  const r=dot.getBoundingClientRect();
+  const cx=r.left+r.width/2,cy=r.top+r.height/2;
+  const delta=Math.hypot(x-cx,y-cy);
+  const radius=Math.max(r.width,r.height)/2+10;
+  if(delta<=radius&&delta<distance){
+   nearest=dot;
+   distance=delta;
+  }
+ }
+ return nearest;
 }
 function playError(){return window.LXLAudio.playError()}
 
