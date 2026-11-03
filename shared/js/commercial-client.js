@@ -126,7 +126,7 @@
   }
   const message=node('label');message.className='sic-postsix-message';message.append(node('span','Mensaje para Iván (editable)'));
   const messageInput=node('textarea');messageInput.name='message';messageInput.maxLength=3000;messageInput.rows=2;
-  messageInput.value='Hola Iván, completé mis 6 aciertos gratuitos en Say It Correctly. Quiero continuar con el acceso de 7 días por USD 1. Quedo pendiente de la verificación del pago y del envío del token. Gracias.';
+  messageInput.value='Hola equipo Say It Correctly, completé mis 6 aciertos gratuitos en la práctica de Parts of the Body y quiero continuar con el acceso de 7 días por USD 1. Quedo pendiente de su comunicación para la verificación del pago y del envío del token. Gracias.';
   message.append(messageInput);form.append(message);
   const legal=node('div');legal.className='sic-postsix-legal';
   const privacyLabel=node('label'),privacyCheck=node('input');privacyCheck.type='checkbox';privacyCheck.name='consent';privacyCheck.required=true;
