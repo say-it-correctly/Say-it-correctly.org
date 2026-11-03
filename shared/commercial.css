@@ -7,3 +7,28 @@
 .sic-consent span{flex:1;min-width:120px}
 .sic-consent a{text-decoration:underline;text-underline-offset:4px}
 .sic-commerce-form [role=status]{grid-column:1/-1;overflow-wrap:anywhere}
+
+
+/* SIC TRIAL MODAL V2 — only applies to the free 6-answer identity dialog. */
+.dialog.sic-trial-dialog{width:min(930px,100%);padding:clamp(20px,3vw,36px);border:1px solid #dce7f6;border-radius:26px;box-shadow:0 34px 90px #061b3c55;}
+.sic-trial-content{min-width:0;}
+.sic-trial-content>h2{max-width:760px;margin:7px auto 10px;text-align:center;color:#123b78;font-size:clamp(22px,2.5vw,30px);line-height:1.2;letter-spacing:-.5px;}
+.sic-trial-lead{margin:0 auto 20px;max-width:640px;text-align:center;color:#516480;font-size:15px;}
+.sic-trial-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0;align-items:stretch;}
+.sic-trial-form>[hidden]{display:none!important;}
+.sic-trial-panel{min-width:0;display:flex;flex-direction:column;gap:13px;border:1px solid #d7e5f6;border-radius:18px;padding:clamp(16px,2vw,24px);background:linear-gradient(180deg,#fff,#f7faff);}
+.sic-trial-panel h3{font-size:clamp(16px,1.55vw,19px);line-height:1.3;color:#123b78;margin:0 0 4px;}
+.sic-trial-panel label{display:block;min-width:0;font-size:13px;font-weight:700;color:#172f50;}
+.sic-trial-panel input:not([type=checkbox]){width:100%;min-height:47px;margin-top:7px;border:1px solid #b9cde7;border-radius:10px;padding:11px 13px;background:white;color:#17325b;font-size:15px;}
+.sic-trial-panel .sic-consent{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+.sic-trial-panel .sic-consent input[type=checkbox],.sic-trial-panel label:has(input[name=termsAccepted]) input{width:18px;height:18px;flex:0 0 18px;min-width:18px;margin:2px 0;}
+.sic-trial-panel label:has(input[name=termsAccepted]){display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:600;}
+.sic-trial-panel .btn{width:100%;min-height:48px;margin-top:auto;border-radius:12px;font-weight:750;font-size:14px;white-space:normal;text-align:center;}
+.sic-trial-panel .btn-white{background:linear-gradient(115deg,#1657b9,#123b78);color:#fff;border:0;}
+.sic-trial-panel .btn-blue{background:linear-gradient(115deg,#1657b9,#123b78);}
+.sic-trial-panel [data-sic-code] input{font-size:22px!important;letter-spacing:.18em;text-align:center;font-variant-numeric:tabular-nums;}
+.sic-trial-code-note{min-height:72px;padding:16px;background:#eaf2ff;border-radius:12px;color:#214f88!important;margin:6px 0 14px!important;line-height:1.5;}
+.sic-trial-panel [role=status]{font-size:13px;min-height:21px;margin:0;overflow-wrap:anywhere;}
+.sic-trial-footer{margin:18px 0 0!important;padding:15px 18px;background:#eaf3ff;border-radius:15px;color:#244b7b!important;font-size:13px;text-align:center;}
+@media(max-width:700px){.dialog.sic-trial-dialog{padding:20px 16px;border-radius:19px;}.sic-trial-form{grid-template-columns:minmax(0,1fr);gap:12px;}.sic-trial-panel{padding:17px;}.sic-trial-content>h2{text-align:left;font-size:22px;}.sic-trial-lead{text-align:left;font-size:13px;}}
+@media(max-width:420px){.dialog.sic-trial-dialog{max-height:calc(100dvh - 16px);}.sic-trial-panel{padding:13px;}}
