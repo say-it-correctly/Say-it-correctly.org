@@ -78,3 +78,12 @@
   .sic-trial-security{margin:4px 0!important;text-align:center;color:#315c87;font-size:11px!important;}
 }
 @media(prefers-reduced-motion:reduce){.sic-trial-dialog *{scroll-behavior:auto!important;}}
+
+/* SIC: post-six access request; separate from the free-trial security prompt. */
+.sic-postsix-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sic-postsix-form label{display:grid;gap:5px;font-size:13px;font-weight:700;min-width:0}
+.sic-postsix-form label:first-child,.sic-postsix-form label:nth-child(3),.sic-postsix-form label:nth-child(4),.sic-postsix-consent,.sic-postsix-form>div,.sic-postsix-form>button,.sic-postsix-form>[role=status]{grid-column:1/-1}
+.sic-postsix-form input:not([type=checkbox]),.sic-postsix-form textarea{min-width:0;width:100%;padding:11px;border:1px solid #bcd0e7;border-radius:10px;font:inherit}
+.sic-postsix-consent{display:flex!important;align-items:flex-start;gap:9px}.sic-postsix-consent input{flex:none;margin-top:4px}.sic-postsix-form .btn{width:100%}
+.sic-free-captcha{min-height:60px}.sic-postsix-form [role=status]{font-size:13px}
+@media(max-width:520px){.sic-postsix-form{grid-template-columns:1fr}.sic-postsix-form>*{grid-column:1!important}}

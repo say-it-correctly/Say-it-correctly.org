@@ -113,11 +113,69 @@
  };
  copy.identity=['Verify your email to keep your six free correct answers across devices. No purchase required.','Verifica tu correo para conservar tus seis aciertos gratuitos entre dispositivos. No requiere compra.','Vérifiez votre courriel pour conserver vos six bonnes réponses gratuites sur tous vos appareils. Aucun achat requis.','Verifique seu e-mail para manter seus seis acertos gratuitos entre dispositivos. Não requer compra.','验证邮箱可跨设备保存六次免费答对记录，无需购买。'];
  client.bootstrap=async()=>{const catalog=window.SIC_BODY_CATALOG;if(!catalog||catalog.words?.length!==24||catalog.markers?.length!==24||new Set(catalog.words.map(w=>w.id)).size!==24||new Set(catalog.markers.map(p=>p.id)).size!==24||new Set(catalog.freeWordIds||[]).size!==6)throw Object.assign(Error('content_unavailable'),{code:'content_unavailable'});client.current={...catalog,completed:[],matches:{},paid:false};return client.current;};
- client.startTrial=async()=>{if(client.current?.token)return client.current;if(config.privacyApproved!==true)throw Object.assign(Error('privacy_not_ready'),{code:'privacy_not_ready'});if(!await client.practiceReady)throw Object.assign(Error('practice_not_ready'),{code:'practice_not_ready'});
- return new Promise((resolve,reject)=>{let active=true;const area=document.getElementById('dialog-content'),overlay=document.getElementById('overlay');
- const cleanup=()=>{document.removeEventListener('sic-access-granted',finish);delete client.completePracticeStart;delete client.cancelPracticeStart;};
- const finish=()=>{if(!active)return;const session=client.current,catalog=window.SIC_BODY_CATALOG;if(session.words?.length!==24||session.markers?.length!==24||!catalog.words.every(w=>session.words.some(x=>x.id===w.id))||!catalog.markers.every(p=>session.markers.some(x=>x.id===p.id)))throw Object.assign(Error('content_mismatch'),{code:'content_mismatch'});active=false;cleanup();overlay.classList.remove('open');document.dispatchEvent(new CustomEvent('sic-session-started',{detail:session}));resolve(session);};
- client.completePracticeStart=finish;client.cancelPracticeStart=()=>{if(!active)return;active=false;cleanup();overlay.classList.remove('open');reject(Object.assign(Error('practice_cancelled'),{code:'practice_cancelled'}));};document.addEventListener('sic-access-granted',finish);client.mountAccess(area,finish,{allowTrial:true});const title=area.querySelector('h2');title.dataset.sicText='identity';title.textContent=text('identity');overlay.classList.add('open');});};
+ client.mountRequest=container=>{
+  container.replaceChildren();
+  const heading=node('h2','¡Completaste tus 6 aciertos gratuitos!');heading.id='dialog-title';
+  const lead=node('p','Para continuar, registra tus datos. Iván te contactará para verificar el pago externo de USD 1.');
+  const form=node('form');form.className='sic-postsix-form';
+  for(const [name,label,type] of [['name','Nombre completo','text'],['phone','Teléfono / WhatsApp','tel'],['email','Correo electrónico','email']]){
+   const wrap=node('label'),caption=node('span',label),field=node('input');field.name=name;field.type=type;field.required=true;field.maxLength=name==='email'?254:name==='phone'?32:120;if(name==='phone')field.minLength=7;
+   wrap.append(caption,field);form.append(wrap);
+  }
+  const message=node('label');message.textContent='Mensaje (opcional)';const messageInput=node('textarea');messageInput.name='message';messageInput.maxLength=3000;messageInput.rows=2;message.append(messageInput);form.append(message);
+  const legal=node('label');legal.className='sic-postsix-consent';const check=node('input');check.type='checkbox';check.name='consent';check.required=true;
+  const legalText=node('span','Acepto el tratamiento de mis datos y los términos del servicio. ');
+  const privacy=node('a','Aviso de privacidad');privacy.href=config.privacyUrl;privacy.target='_blank';privacy.rel='noopener noreferrer';
+  const terms=node('a','Términos');terms.href=config.termsUrl;terms.target='_blank';terms.rel='noopener noreferrer';legalText.append(privacy,node('span',' · '),terms);legal.append(check,legalText);form.append(legal);
+  const captchaBox=node('div');form.append(captchaBox);
+  const submit=node('button','Registrar solicitud');submit.type='submit';submit.className='btn btn-blue';form.append(submit);
+  const whats=node('button','Abrir WhatsApp de Iván');whats.type='button';whats.className='btn btn-white';whats.hidden=true;form.append(whats);
+  const state=node('p');state.setAttribute('role','status');state.setAttribute('aria-live','polite');form.append(state);
+  container.append(heading,lead,form);
+  const number=typeof config.whatsappNumber==='string'&&/^[1-9]\d{9,14}$/.test(config.whatsappNumber)?config.whatsappNumber:null;
+  let receipt=null;
+  form.onsubmit=async e=>{e.preventDefault();if(receipt||!form.reportValidity())return;
+   if(!config.requestsEnabled||!config.privacyApproved||!number){state.textContent='Las solicitudes no están disponibles en este momento.';return;}
+   submit.disabled=true;
+   try{const captchaToken=await client.captcha(captchaBox);const payload={kind:'access',name:form.elements.name.value.trim(),phone:form.elements.phone.value.trim(),email:form.elements.email.value.trim(),message:form.elements.message.value.trim()||'Solicitud de continuidad de Parts of the Body',lang:window.LXL?.lang||'es',consent:true,consentVersion:config.privacyVersion,termsAccepted:true,termsVersion:config.termsVersion,captchaToken};
+    const result=await client.api('/requests',payload);
+    if(result?.received!==true||typeof result.id!=='string')throw Error('request_receipt_invalid');
+    receipt={...payload,id:result.id};submit.hidden=true;whats.hidden=false;state.textContent='Solicitud registrada. Ahora abre WhatsApp y pulsa Enviar para contactar a Iván.';
+   }catch(error){state.textContent=client.errorText(error);submit.disabled=false;}
+  };
+  whats.onclick=()=>{if(!receipt||!number)return;
+   const msg=`Hola Iván, soy ${receipt.name}. Solicité continuar Say It Correctly. Solicitud: ${receipt.id}. Correo: ${receipt.email}. Teléfono: ${receipt.phone}. Quiero coordinar el pago externo de USD 1. Entiendo que confirmarás el pago antes de generar mi token.`;
+   window.open('https://wa.me/'+number+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+   state.textContent='WhatsApp abierto. Debes pulsar Enviar allí; no podemos confirmar la recepción automáticamente.';
+  };
+ };
+ client.startTrial=async()=>{
+  if(client.current?.token)return client.current;
+  if(config.privacyApproved!==true)throw Object.assign(Error('privacy_not_ready'),{code:'privacy_not_ready'});
+  if(!await client.practiceReady)throw Object.assign(Error('practice_not_ready'),{code:'practice_not_ready'});
+  const area=document.getElementById('dialog-content'),overlay=document.getElementById('overlay');
+  const title=document.createElement('h2');title.id='dialog-title';title.textContent='Comienza tus 6 aciertos gratuitos';
+  const lead=document.createElement('p');lead.textContent='No necesitas correo ni pago. Completa la verificación de seguridad para iniciar.';
+  const captchaArea=document.createElement('div');captchaArea.className='sic-free-captcha';
+  const go=document.createElement('button');go.type='button';go.className='btn btn-blue';go.textContent='Comenzar práctica gratuita';
+  const state=document.createElement('p');state.setAttribute('role','status');state.setAttribute('aria-live','polite');
+  area.replaceChildren(title,lead,captchaArea,go,state);overlay.classList.add('open');
+  return new Promise((resolve,reject)=>{
+   let active=true;
+   const cleanup=()=>{delete client.cancelPracticeStart;delete client.completePracticeStart;};
+   const close=(error)=>{if(!active)return;active=false;cleanup();overlay.classList.remove('open');reject(error)};
+   client.cancelPracticeStart=()=>close(Object.assign(Error('practice_cancelled'),{code:'practice_cancelled'}));
+   go.onclick=async()=>{if(!active)return;go.disabled=true;state.textContent='Comprobando seguridad…';
+    try{const captchaToken=await client.captcha(captchaArea);const session=await client.api('/trial',{captchaToken});
+     const catalog=window.SIC_BODY_CATALOG;
+     if(!session?.token||session.words?.length!==24||session.markers?.length!==24||!catalog||!catalog.words.every(w=>session.words.some(x=>x.id===w.id)))throw Error('invalid_trial');
+     client.current={...session,paid:false};active=false;cleanup();overlay.classList.remove('open');
+     document.dispatchEvent(new CustomEvent('sic-session-started',{detail:client.current}));resolve(client.current);
+    }catch(error){state.textContent=client.errorText(error);go.disabled=false;}
+   };
+  });
+ };
+
  let pending=null;
  client.attempt=async(wordId,pointId)=>{
   if(!client.current?.token)await client.startTrial();
