@@ -149,6 +149,9 @@ $('body-language').addEventListener('change',e=>window.LXL.setLang(e.target.valu
 document.addEventListener('lxl-language-change',updateBodyLocale);
 $('overlay').onclick=e=>{if(e.target===$('overlay'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalName)closeModal();if(e.key==='Tab'&&modalName){const b=[...$('dialog').querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')],first=b[0],last=b.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 $('reset').onclick=reset;$('preview').onclick=()=>openModal('cart');$('reopen-tutorial').onclick=()=>openModal('tutorial');
+// Desde Inicio: abrir el acceso existente; la URL solo transporta una señal, nunca el token.
+if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>openModal('form'));}
+
 // Prevent an ordinary click after a drag from accidentally selecting the word.
 document.addEventListener('click',e=>{if(skipClick){e.stopPropagation();e.preventDefault();skipClick=false}},true);
 window.LXLAudio.onVoicesChanged(refreshVoices);refreshVoices();
