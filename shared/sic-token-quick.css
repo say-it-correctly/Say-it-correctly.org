@@ -45,3 +45,17 @@
   .sic-token-quick__button{transition:none}
   .sic-token-quick__button:hover{transform:none}
 }
+
+
+/* SIC HOME — espaciado uniforme */
+[data-institutional-banner="home"] .actions {
+  margin: 14px 0 0;
+}
+
+[data-institutional-banner="home"] .sic-token-quick {
+  margin-top: 14px;
+}
+
+[data-institutional-banner="home"] .institutional-banner {
+  gap: 14px;
+}
