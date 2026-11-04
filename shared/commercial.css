@@ -121,3 +121,44 @@
 .overlay:has(.sic-free-captcha) #dialog-content>p{margin:0;font-size:13px;}
 .overlay:has(.sic-free-captcha) #dialog-content>button{width:100%;min-height:44px;margin:0;}
 @media(max-height:560px){.overlay:has(.sic-free-captcha),.overlay:has(.sic-request-content){align-items:flex-start;}}
+
+
+/* SIC ACCESS MODAL V5 — solicitud y canje separados */
+.overlay:has(.sic-access-dialog){align-items:flex-start;overflow-y:auto;padding:clamp(8px,2vh,22px)}
+.dialog.sic-access-dialog{width:min(960px,calc(100vw - 24px));max-height:none;overflow:visible;margin:auto;padding:clamp(18px,2.5vw,30px);border:1px solid #d8e4f4;border-radius:24px;box-shadow:0 24px 70px #09275255}
+.sic-access-content{min-width:0;display:flex;flex-direction:column;gap:14px}
+.sic-access-content>h2{font-size:clamp(23px,2.8vw,31px);margin:0 36px 0 0;color:#123b78}
+.sic-access-modes{display:flex;flex-wrap:wrap;gap:9px}
+.sic-access-mode{border:1px solid #c1d2e8;border-radius:11px;background:#fff;color:#123b78;font:inherit;font-weight:800;padding:11px 17px;cursor:pointer}
+.sic-access-mode[aria-pressed=true]{background:#123b78;color:#fff;border-color:#123b78}
+.sic-access-mode:focus-visible{outline:3px solid #d83449;outline-offset:3px}
+.sic-commerce-form.sic-access-layout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0;align-items:stretch}
+.sic-access-pane{display:flex;flex-direction:column;min-width:0;gap:12px;border:1px solid #d8e4f4;border-radius:18px;background:#fff;padding:20px}
+.sic-access-aside{background:#f6f9ff}
+.sic-access-pane h3{margin:0;color:#123b78;font-size:18px;line-height:1.3}
+.sic-access-pane label{display:block;min-width:0;font-size:13px;font-weight:700;color:#193b6a}
+.sic-access-pane label:has(input[type=checkbox]){display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;font-size:12px;line-height:1.4}
+.sic-access-pane label:has(input[type=checkbox]) input{width:18px;min-width:18px;height:18px;margin:1px 0 0}
+.sic-access-pane label:has(input[type=checkbox]) a{display:inline;color:#123b78;text-decoration:underline}
+.sic-access-pane input:not([type=checkbox]){display:block;width:100%;min-height:43px;margin-top:5px;padding:9px 11px;border:1px solid #c1d1e6;border-radius:10px;background:#fff;font:inherit;font-size:14px}
+.sic-access-help{margin:0!important;color:#516784!important;font-size:12px;line-height:1.5}
+.sic-access-info{background:#e9f1fd;border-radius:12px;padding:12px 14px;color:#123b78;font-size:13px;line-height:1.4}
+.sic-access-info p{margin:5px 0 0;font-size:12px;line-height:1.5;color:#385474}
+.sic-access-actions,.sic-access-code{display:grid;gap:9px}
+.sic-access-pane .btn{width:100%;min-height:44px;margin:0;font-size:14px}
+.sic-access-pane [role=status]{margin:0;font-size:13px;overflow-wrap:anywhere;color:#153e75}
+.sic-access-pane [role=status]:empty,.sic-access-pane [role=status][hidden]{display:none!important}
+.sic-access-pane [role=status][data-sic-error=true]{padding:10px 12px;background:#fff1f1;border:1px solid #edbfc4;border-radius:9px;color:#8f2435}
+.sic-access-content[data-sic-mode=token] .sic-access-request{gap:13px}
+.sic-access-content[data-sic-mode=request] .sic-access-aside label[hidden]{display:none!important}
+.sic-access-pane [hidden]{display:none!important}
+@media(max-width:700px){
+ .overlay:has(.sic-access-dialog){padding:8px;align-items:flex-start}
+ .dialog.sic-access-dialog{width:100%;max-width:540px;margin:auto;padding:18px 14px;max-height:none;overflow:visible;border-radius:18px}
+ .sic-commerce-form.sic-access-layout{grid-template-columns:minmax(0,1fr);gap:11px}
+ .sic-access-pane{padding:15px;gap:11px}
+ .sic-access-content>h2{font-size:24px}
+ .sic-access-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .sic-access-mode{padding:10px 7px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.sic-access-mode{transition:none}}

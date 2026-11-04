@@ -71,7 +71,13 @@
  };
  function consent(){const label=node('label'),check=node('input');check.type='checkbox';check.required=true;check.name='consent';label.className='sic-consent';label.append(check,localized('span','consent'));const link=localized('a','privacy');link.href=config.privacyUrl;link.target='_blank';link.rel='noopener noreferrer';label.append(link);return label;}
  const field=(name,type='text')=>{const label=node('label'),input=node('input');input.type=type;input.name=name;input.required=true;input.maxLength=name==='email'?254:name==='phone'?32:120;if(name==='phone')input.minLength=7;const span=node('span',text(name));span.dataset.sicText=name;label.append(span,input);return label};
- async function auth(path,body){if(!validURL(config.supabaseUrl)||!config.publishableKey)throw Error('identity_configuration_required');const r=await fetch(config.supabaseUrl+'/auth/v1/'+path,{method:'POST',headers:{apikey:config.publishableKey,'content-type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error('identity_failed');return r.json();}
+ async function auth(path,body){if(!validURL(config.supabaseUrl)||!config.publishableKey)throw Error('identity_configuration_required');const r=await fetch(config.supabaseUrl+'/auth/v1/'+path,{method:'POST',headers:{apikey:config.publishableKey,'content-type':'application/json'},body:JSON.stringify(body)});if(!r.ok){
+  let detail={};try{detail=await r.json()}catch{}
+  const error=Error('identity_failed');
+  error.code=typeof detail.code==='string'?detail.code:'identity_failed';
+  error.httpStatus=r.status;
+  throw error;
+ }return r.json();}
  client.auth=auth;
  client.mountAccess=(container,onAccess,{allowTrial=false}={})=>{container.replaceChildren();container.closest('.dialog')?.classList.remove('sic-trial-dialog');const title=localized('h2','access');title.id='dialog-title';container.append(title,localized('p','manual'));const form=node('form');form.className='sic-commerce-form fields';form.append(field('name'),field('email','email'),field('phone','tel'),field('message'),consent());const terms=node('label'),termsCheck=node('input'),termsLink=node('a','Términos del servicio · sic-terms-v2');termsCheck.type='checkbox';termsCheck.name='termsAccepted';termsCheck.required=true;termsLink.href=config.termsUrl;termsLink.target='_blank';termsLink.rel='noopener noreferrer';terms.append(termsCheck,node('span','Acepto los términos del servicio. '),termsLink);form.append(terms);const status=node('p');status.setAttribute('role','status');status.setAttribute('aria-live','polite');const send=localized('button','send');send.type='submit';send.className='btn btn-red';const login=localized('button','login');login.type='button';login.className='btn btn-white';const captchaBox=node('div');form.append(send,login,captchaBox,status);container.append(form);
  const tokenLabel=node('label','Token de acceso (opcional)'),tokenInput=node('input');tokenInput.name='accessToken';tokenInput.autocomplete='off';tokenInput.maxLength=43;tokenLabel.append(tokenInput);form.insertBefore(tokenLabel,login);
@@ -83,7 +89,85 @@
  if(!whatsappConfigured())whatsapp.title='Número de Iván pendiente de confirmar en configuración';
  whatsapp.onclick=()=>form.requestSubmit(send);form.insertBefore(whatsapp,login);
  send.textContent='Registrar solicitud y abrir WhatsApp';
-
+ // Presentación visual exclusiva para canje/solicitud comercial; el flujo gratuito permanece intacto.
+ let accessCodePanel=null;
+ const sicAuthMessage=error=>{
+   const code=String(error?.code||'').toLowerCase();
+   if(/captcha|turnstile/.test(code))return 'No fue posible comprobar la seguridad. Completa el control y vuelve a intentarlo.';
+   if(error?.httpStatus===429||/rate_limit|too_many/.test(code))return 'Se alcanzó el límite temporal de códigos. Inténtalo más tarde.';
+   if(/otp_expired|token_expired/.test(code))return 'El código de correo venció. Solicita uno nuevo.';
+   if(/invalid_otp|otp_disabled|token_invalid/.test(code))return 'El código de correo no es válido. Compruébalo e inténtalo de nuevo.';
+   if(/email_address_invalid|email_not_confirmed/.test(code))return 'Revisa la dirección del correo electrónico.';
+   if(error?.code==='permission_required')return text('pending');
+   if(/^token_|^student_|^capacity_|^payment_/.test(code))return client.error(error);
+   if(error?.httpStatus===0||error?.name==='AbortError'||error?.name==='TypeError')return 'No se pudo conectar con el servicio. Comprueba tu conexión y reintenta.';
+   return 'No se pudo completar la verificación de correo. No se canjeó el token. Comprueba el correo y la configuración de acceso.';
+ };
+ if(!allowTrial){
+   const dialog=container.closest('.dialog');
+   dialog?.classList.add('sic-access-dialog');
+   container.classList.add('sic-access-content');
+   const oldLead=container.querySelector(':scope > p');
+   if(oldLead)oldLead.remove();
+   title.textContent='Acceso a la práctica';
+   const modeNav=node('div');modeNav.className='sic-access-modes';modeNav.setAttribute('role','group');modeNav.setAttribute('aria-label','Elige cómo continuar');
+   const tokenMode=node('button','Ya tengo un token'),requestMode=node('button','Solicitar acceso');
+   for(const button of [tokenMode,requestMode]){button.type='button';button.className='sic-access-mode'}
+   modeNav.append(tokenMode,requestMode);container.insertBefore(modeNav,form);
+   form.classList.add('sic-access-layout');
+   const requestPanel=node('section');requestPanel.className='sic-access-pane sic-access-request';
+   const sidePanel=node('section');sidePanel.className='sic-access-pane sic-access-aside';
+   const requestHeading=node('h3','Verifica tu correo electrónico');
+   const sideHeading=node('h3','Tu token de acceso');
+   requestPanel.append(requestHeading);
+   const inputs=[...['name','email','phone','message'].map(key=>form.elements[key].closest('label'))];
+   requestPanel.append(...inputs,form.elements.consent.closest('label'),terms);
+   const securityHint=node('p','Introduce el código que recibirás por correo. El token queda asociado a esa identidad.');securityHint.className='sic-access-help';
+   requestPanel.append(securityHint);
+   sidePanel.append(sideHeading);
+   const info=node('div');info.className='sic-access-info';
+   const infoTitle=node('strong','USD 1 · Acceso durante 7 días');
+   const infoText=node('p','La vigencia empieza con la emisión del token. La renovación requiere un nuevo pago verificado por Iván. Abrir WhatsApp no confirma el envío.');
+   info.append(infoTitle,infoText);sidePanel.append(info);
+   tokenNote.hidden=true;whatsappNote.hidden=true;whatsapp.hidden=true;
+   sidePanel.append(tokenLabel);
+   const requestFooter=node('div');requestFooter.className='sic-access-actions';requestPanel.append(requestFooter);
+   requestFooter.append(send);
+   form.replaceChildren(requestPanel,sidePanel);
+   let mode='token';
+   accessCodePanel=node('div');accessCodePanel.className='sic-access-code';
+   const setMode=next=>{
+     mode=next;
+     const isToken=mode==='token';
+     container.dataset.sicMode=mode;
+     tokenMode.setAttribute('aria-pressed',String(isToken));
+     requestMode.setAttribute('aria-pressed',String(!isToken));
+     requestHeading.textContent=isToken?'1. Verifica tu correo':'1. Registra tu solicitud';
+     sideHeading.textContent=isToken?'2. Introduce tu token':'Información del acceso';
+     for(const key of ['name','phone','message']){
+       const input=form.elements[key];input.required=!isToken;input.closest('label').hidden=isToken;
+     }
+     tokenLabel.hidden=!isToken;
+     send.hidden=isToken;
+     securityHint.textContent=isToken?'Recibirás un código para verificar tu identidad antes del canje.':'Para solicitar acceso se verifica tu correo y luego se registra la solicitud.';
+     const target=isToken?sidePanel:requestFooter;
+     target.append(login,captchaBox,accessCodePanel,status);
+     login.textContent='Enviar código de acceso';
+     status.textContent='';
+     status.hidden=true;
+   };
+   tokenMode.onclick=()=>setMode('token');requestMode.onclick=()=>setMode('request');
+   form.addEventListener('submit',event=>{
+     if(mode==='token'){
+       event.preventDefault();event.stopImmediatePropagation();
+       const verify=accessCodePanel.querySelector('button[data-sic-code]');
+       (verify||login).click();
+     }
+   },true);
+   new MutationObserver(()=>{status.hidden=!status.textContent.trim()}).observe(status,{childList:true,characterData:true,subtree:true});
+   form.addEventListener('input',()=>{if(status.textContent&&status.dataset.sicError==='true'){status.textContent='';status.hidden=true;status.dataset.sicError='false';}});
+   setMode('token');
+ }
  let trialCodePanel=null,trialCodeStatus=null;
  if(allowTrial){for(const name of ['name','message','phone']){const input=form.elements[name];input.required=false;input.closest('label').hidden=true;}termsCheck.required=true;terms.hidden=false;form.elements.consent.closest('label').querySelector('span').textContent='Acepto el tratamiento de los datos necesarios para la práctica gratuita.';whatsappNote.hidden=true;send.hidden=true;whatsapp.hidden=true;tokenLabel.hidden=true;tokenNote.hidden=true;container.querySelector('p').hidden=true;
   const dialog=container.closest('.dialog');if(dialog)dialog.classList.add('sic-trial-dialog');
@@ -107,9 +191,9 @@
   const message='Hola Iván. Mi solicitud de Say It Correctly es '+registeredRequest.id+'. Quiero coordinar el contacto y pago externo de USD 1. El pago requiere tu confirmación manual.';
   try{window.open('https://wa.me/'+config.whatsappNumber+'?text='+encodeURIComponent(message),'_blank','noopener,noreferrer');}catch{}
   whatsapp.textContent='Volver a abrir WhatsApp';status.textContent='Solicitud registrada: '+registeredRequest.id+'. Se intentó abrir WhatsApp; si no se abrió, pulsa Volver a abrir WhatsApp. Debes pulsar Enviar allí. Envío y recepción no confirmados.';
- }catch(error){status.textContent=/^request_identity_/.test(error.code||'')?text('requestSignIn'):text('failed');if(!client.bearer)form.elements.email.readOnly=false;}finally{requestBusy=false;send.disabled=!whatsappConfigured()||!requestsAllowed()||!client.bearer||!client.requestUser;whatsapp.disabled=send.disabled;}};
+ }catch(error){status.textContent=/^request_identity_/.test(error.code||'')?text('requestSignIn'):text('failed');status.hidden=false;status.dataset.sicError='true';if(!client.bearer)form.elements.email.readOnly=false;}finally{requestBusy=false;send.disabled=!whatsappConfigured()||!requestsAllowed()||!client.bearer||!client.requestUser;whatsapp.disabled=send.disabled;}};
 
- login.onclick=async()=>{if(config.privacyApproved!==true){status.textContent=text('privacyPending');return;}const requestOnly=!allowTrial&&!client.enabled;if(requestOnly&&(!requestsAllowed()||!await client.requestsReady)){status.textContent=text('accessUnavailable');return;}if(!form.elements.email.reportValidity()||!form.elements.consent.reportValidity())return;if(allowTrial&&!termsCheck.reportValidity())return;login.disabled=true;try{const email=form.elements.email.value,captchaToken=await client.captcha(captchaBox);await auth('otp',{email,create_user:!requestOnly,gotrue_meta_security:{captcha_token:captchaToken}});status.textContent=text('waiting');if(allowTrial&&trialCodeStatus){trialCodeStatus.textContent='Código solicitado. Revisa tu correo e introduce el código recibido.';form.classList.add('sic-trial-code-sent');}form.querySelectorAll('[data-sic-code]').forEach(e=>e.remove());const codeLabel=field('code');codeLabel.dataset.sicCode='true';codeLabel.querySelector('input').inputMode='numeric';codeLabel.querySelector('input').autocomplete='one-time-code';codeLabel.querySelector('input').maxLength=8;codeLabel.querySelector('input').placeholder='Código de correo';codeLabel.querySelector('input').pattern='[0-9]{6,8}';codeLabel.querySelector('input').ariaLabel='Código numérico recibido en el correo';const verify=localized('button','verify');verify.dataset.sicCode='true';verify.type='button';verify.className='btn btn-blue';if(allowTrial&&trialCodePanel){trialCodePanel.append(codeLabel,verify);codeLabel.querySelector('input').focus();}else form.append(codeLabel,verify);verify.onclick=async()=>{verify.disabled=true;try{const result=await auth('verify',{email,token:form.elements.code.value,type:'email'});client.bearer=result.access_token;client.requestUser=null;if(!client.bearer)throw Error('identity_failed');if(requestOnly){await bindRequestIdentity();status.textContent=text('requestVerified');return;}if(tokenInput.value.trim()){const token=tokenInput.value.trim();if(!client.redemption||client.redemption.token!==token)client.redemption={token,key:crypto.randomUUID()};await client.api('/redeem',{token},{key:client.redemption.key});}const previous=client.current;let session,paid=true;try{session=await client.api('/session',previous&&!previous.paid?{trialToken:previous.token}:{});}catch(error){if(!allowTrial||error.code!=='permission_required')throw error;paid=false;const captchaToken=await client.captcha(captchaBox);session=await client.api('/trial',{captchaToken});}client.current={...session,paid};onAccess(session);}catch(error){status.textContent=error.code==='permission_required'?text('pending'):client.error(error)}finally{verify.disabled=false}};}catch{status.textContent=text('failed')}finally{login.disabled=false}};
+ login.onclick=async()=>{status.textContent='';if(!allowTrial)status.hidden=true;if(config.privacyApproved!==true){status.textContent=text('privacyPending');return;}const requestOnly=!allowTrial&&!client.enabled;if(requestOnly&&(!requestsAllowed()||!await client.requestsReady)){status.textContent=text('accessUnavailable');return;}if(!form.elements.email.reportValidity()||!form.elements.consent.reportValidity())return;if(allowTrial&&!termsCheck.reportValidity())return;login.disabled=true;try{const email=form.elements.email.value,captchaToken=await client.captcha(captchaBox);await auth('otp',{email,create_user:!requestOnly,gotrue_meta_security:{captcha_token:captchaToken}});status.textContent=text('waiting');if(allowTrial&&trialCodeStatus){trialCodeStatus.textContent='Código solicitado. Revisa tu correo e introduce el código recibido.';form.classList.add('sic-trial-code-sent');}form.querySelectorAll('[data-sic-code]').forEach(e=>e.remove());const codeLabel=field('code');codeLabel.dataset.sicCode='true';codeLabel.querySelector('input').inputMode='numeric';codeLabel.querySelector('input').autocomplete='one-time-code';codeLabel.querySelector('input').maxLength=8;codeLabel.querySelector('input').placeholder='Código de correo';codeLabel.querySelector('input').pattern='[0-9]{6,8}';codeLabel.querySelector('input').ariaLabel='Código numérico recibido en el correo';const verify=localized('button','verify');verify.dataset.sicCode='true';verify.type='button';verify.className='btn btn-blue';if(allowTrial&&trialCodePanel){trialCodePanel.append(codeLabel,verify);codeLabel.querySelector('input').focus();}else (accessCodePanel||form).append(codeLabel,verify);verify.onclick=async()=>{verify.disabled=true;status.textContent='';if(!allowTrial)status.hidden=true;try{const result=await auth('verify',{email,token:form.elements.code.value,type:'email'});client.bearer=result.access_token;client.requestUser=null;if(!client.bearer)throw Error('identity_failed');if(requestOnly){await bindRequestIdentity();status.textContent=text('requestVerified');return;}if(tokenInput.value.trim()){const token=tokenInput.value.trim();if(!client.redemption||client.redemption.token!==token)client.redemption={token,key:crypto.randomUUID()};await client.api('/redeem',{token},{key:client.redemption.key});}const previous=client.current;let session,paid=true;try{session=await client.api('/session',previous&&!previous.paid?{trialToken:previous.token}:{});}catch(error){if(!allowTrial||error.code!=='permission_required')throw error;paid=false;const captchaToken=await client.captcha(captchaBox);session=await client.api('/trial',{captchaToken});}client.current={...session,paid};status.textContent='Acceso verificado. Abriendo práctica…';status.hidden=false;status.dataset.sicError='false';onAccess(session);}catch(error){status.textContent=sicAuthMessage(error);status.hidden=false;status.dataset.sicError='true'}finally{verify.disabled=false}};}catch(error){status.textContent=sicAuthMessage(error);status.hidden=false;status.dataset.sicError='true'}finally{login.disabled=false}};
  };
  copy.identity=['Verify your email to keep your six free correct answers across devices. No purchase required.','Verifica tu correo para conservar tus seis aciertos gratuitos entre dispositivos. No requiere compra.','Vérifiez votre courriel pour conserver vos six bonnes réponses gratuites sur tous vos appareils. Aucun achat requis.','Verifique seu e-mail para manter seus seis acertos gratuitos entre dispositivos. Não requer compra.','验证邮箱可跨设备保存六次免费答对记录，无需购买。'];
  client.bootstrap=async()=>{const catalog=window.SIC_BODY_CATALOG;if(!catalog||catalog.words?.length!==24||catalog.markers?.length!==24||new Set(catalog.words.map(w=>w.id)).size!==24||new Set(catalog.markers.map(p=>p.id)).size!==24||new Set(catalog.freeWordIds||[]).size!==6)throw Object.assign(Error('content_unavailable'),{code:'content_unavailable'});client.current={...catalog,completed:[],matches:{},paid:false};return client.current;};
