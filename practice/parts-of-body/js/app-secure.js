@@ -1,4 +1,4 @@
-(async()=>{const C=window.SICCommerce;try{await C.bootstrap();
+(async()=>{const C=window.SICCommerce;try{await C.bootstrap();if(window.SICEntry?.failed)return;
 "use strict";
 const PRICE_USD=1,FREE_LIMIT=6;const DATA=C.current.words,MARKERS=C.current.markers;
 const $=id=>document.getElementById(id);
@@ -191,7 +191,7 @@ document.addEventListener('sic-session-started',applyServerSession);
 document.addEventListener('sic-access-granted',()=>{applyServerSession();closeModal();});
 function closeModal(){
  const languageNext=entryPending&&modalName==='form',tutorial=modalName==='tutorial';
- if(tutorial)entryPending=false;
+ if(tutorial){entryPending=false;window.SICEntry?.release();}
  C.cancelPracticeStart?.();$('overlay').classList.remove('open');modalName='';setBackgroundInert(false);
  if(languageNext)queueMicrotask(showLanguageWelcome);else if(tutorial)$('words').querySelector('.choose-word')?.focus();else if(returnFocus?.isConnected)returnFocus.focus();
 }
@@ -218,7 +218,8 @@ function showLanguageWelcome(){
  sel.addEventListener('change',()=>{window.LXL.setLang(sel.value);draw()});
  layer.querySelector('#welcome-go').addEventListener('click',()=>{layer.remove();openModal('tutorial')});layer.addEventListener('keydown',e=>{if(e.key==='Tab'){const first=sel,last=layer.querySelector('#welcome-go');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});sel.focus();
 }
-if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);if(!C.current.paid)openModal('form');else showLanguageWelcome();}else showLanguageWelcome();
+if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);openModal('form');}else showLanguageWelcome();
+window.SICEntry?.present();
 
 // Exercise header menu lifecycle. The shared renderer and other pages stay intact.
 const bindCommercialMenu=()=>{
@@ -245,4 +246,4 @@ const bindCommercialMenu=()=>{
  document.addEventListener('lxl-language-change',bindMenu);bindMenu();
 };if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindCommercialMenu);else bindCommercialMenu();
 
-}catch(error){const messages={en:'The exercise could not load. Reload the page or contact support.',es:'No se pudo cargar el ejercicio. Recarga la página o contacta al soporte.','zh-CN':'无法加载练习。请刷新页面或联系支持人员。',fr:'Impossible de charger l’exercice. Actualisez la page ou contactez l’assistance.',pt:'Não foi possível carregar o exercício. Recarregue a página ou contate o suporte.'};const language=window.LXL?.lang||'en',status=document.getElementById('status'),select=document.getElementById('body-language');if(select)select.value=language;if(status){status.setAttribute('role','alert');status.textContent=C?.errorText?C.errorText(error):messages[language]||messages.en;}}})();
+}catch(error){const messages={en:'The exercise could not load. Reload the page or contact support.',es:'No se pudo cargar el ejercicio. Recarga la página o contacta al soporte.','zh-CN':'无法加载练习。请刷新页面或联系支持人员。',fr:'Impossible de charger l’exercice. Actualisez la page ou contactez l’assistance.',pt:'Não foi possível carregar o exercício. Recarregue a página ou contate o suporte.'};const language=window.LXL?.lang||'en',status=document.getElementById('status'),select=document.getElementById('body-language');if(select)select.value=language;if(status){status.setAttribute('role','alert');status.textContent=C?.errorText?C.errorText(error):messages[language]||messages.en;}window.SICEntry?.fail(messages[language]||messages.en);}})();
