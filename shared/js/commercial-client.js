@@ -280,6 +280,7 @@
  let pending=null;
  client.attempt=async(wordId,pointId)=>{
   if(!client.current?.token)await client.startTrial();
+  if(pending&&pending.body.nonce!==client.current.nonce)pending=null;
   if(pending&&(pending.body.wordId!==wordId||pending.body.pointId!==pointId))throw Object.assign(Error('attempt_pending'),{code:'attempt_pending',wordId:pending.body.wordId});
   if(!pending)pending={key:crypto.randomUUID(),body:{wordId,pointId,nonce:client.current.nonce}};
   try{const r=await client.api('/attempt',pending.body,{key:pending.key,token:client.current.token});client.current.nonce=r.nonce;client.current.locked=r.locked;pending=null;return r;}

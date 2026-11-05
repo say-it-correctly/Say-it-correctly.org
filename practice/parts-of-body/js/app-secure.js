@@ -155,7 +155,17 @@ function startDrag(e,d,button){
  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel);
  if(touch){window.addEventListener('touchmove',touchMove,{passive:false});window.addEventListener('touchend',touchEnd);window.addEventListener('touchcancel',cancel)}
 }
-function reset(){if(busy)return;clearAttemptFeedback();selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset')}
+async function reset(){
+ if(busy)return;
+ if(C.current.authMethod==='commercial-token'){
+  busy=true;$('reset').disabled=true;
+  try{await C.restartCommercial();clearAttemptFeedback();selected=null;highlighted=null;applyServerSession();$('status').textContent=C.text('reset');}
+  catch(error){$('status').textContent=C.errorText(error);if(error.httpStatus===401||error.code==='permission_required'){locked=true;updateUI();openModal('form');}}
+  finally{busy=false;$('reset').disabled=false;}
+  return;
+ }
+ clearAttemptFeedback();selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset');
+}
 let returnFocus=null,entryPending=true;
 function dialog(html,type){$('dialog').classList.remove('sic-token-modal');if(!modalName)returnFocus=document.activeElement;const box=$('dialog-content');box.innerHTML=html;$('dialog').classList.toggle('tutorial-dialog',type==='tutorial');$('overlay').classList.add('open');modalName=type;setBackgroundInert(true);translateOpenDialog(type);$('close').focus()}
 const tx=(key,tag='p')=>'<'+tag+' data-t="'+key+'">'+T(key)+'</'+tag+'>';
@@ -197,7 +207,7 @@ $('reset').onclick=reset;$('preview').onclick=()=>openModal('cart');$('reopen-tu
 document.addEventListener('click',e=>{if(skipClick&&e.detail!==0&&!e.target.closest('.speak,#speak,#voice-test')){e.stopPropagation();e.preventDefault();skipClick=false}},true);
 window.LXLAudio.onVoicesChanged(refreshVoices);refreshVoices();
 window.LXLAudio.onError(error=>{if(!['effectFail','successEffectFail'].includes(error.code))return;const status=$('effect-status');status.hidden=false;status.dataset.audioError=error.code;status.textContent=T(error.code)});
-render();updateBodyLocale();
+render();updateBodyLocale();applyServerSession();
 // A first-time visitor selects an instruction language before beginning.
 function showLanguageWelcome(){
  if(document.querySelector('.language-welcome'))return;
@@ -208,7 +218,7 @@ function showLanguageWelcome(){
  sel.addEventListener('change',()=>{window.LXL.setLang(sel.value);draw()});
  layer.querySelector('#welcome-go').addEventListener('click',()=>{layer.remove();openModal('tutorial')});layer.addEventListener('keydown',e=>{if(e.key==='Tab'){const first=sel,last=layer.querySelector('#welcome-go');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});sel.focus();
 }
-if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);openModal('form');}else showLanguageWelcome();
+if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);if(!C.current.paid)openModal('form');else showLanguageWelcome();}else showLanguageWelcome();
 
 // Exercise header menu lifecycle. The shared renderer and other pages stay intact.
 const bindCommercialMenu=()=>{
