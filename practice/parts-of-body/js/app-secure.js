@@ -4,19 +4,21 @@ const PRICE_USD=1,FREE_LIMIT=6;const DATA=C.current.words,MARKERS=C.current.mark
 const $=id=>document.getElementById(id);
 const T=(key,vars)=>key==='foot'?C.text('practiceNote'):key==='step4'?C.text('continuationRule'):key==='priceNote'?C.text('manual'):(window.LXL?.t?.(key,vars)||key);
 for(const lang of window.LXL.supported){const index=['en','es','fr','pt','zh-CN'].indexOf(lang);window.LXL.dictionaries[lang].foot=["Answers are checked by the server. Payments are external and manually verified.","Las respuestas se validan en el servidor. Los pagos son externos y se verifican manualmente.","Les réponses sont vérifiées par le serveur. Les paiements sont externes et vérifiés manuellement.","As respostas são validadas no servidor. Os pagamentos são externos e verificados manualmente.","答案由服务器验证。付款在平台外进行，并由管理员人工核实。"][index];}
+const progressLabel=()=>C.current.paid?({en:'Progress',es:'Progreso',fr:'Progression',pt:'Progresso','zh-CN':'学习进度'}[window.LXL.lang]||'Progress'):T('counter');
+const progressBanner=()=>{document.querySelector('[data-ui=demo]').textContent=C.current.paid?progressLabel()+' · '+T('words'):C.text('free')};
 function updateBodyLocale(){
  const map={'body-instruction':'instruction','body-choose':'choose','body-words-count':'words','body-drag-help':'drag'};for(const [id,key] of Object.entries(map)){const e=$(id);if(e)e.textContent=T(key)}
- document.querySelector('[data-ui=demo]').textContent=C.text('free');document.querySelector('.footer').textContent=T('foot');
+ progressBanner();document.querySelector('.footer').textContent=T('foot');
  const back=document.querySelector('.header a.btn-white');if(back){back.textContent=T('back');back.href='../../home/index.html?lang='+encodeURIComponent(window.LXL.lang)}
  const help=$('reopen-tutorial');if(help)help.textContent=T('help');
  const reset=$('reset');if(reset)reset.textContent=T('reset');
  const cart=$('preview');if(cart)cart.textContent=T('cart');
- const counter=$('counter');if(counter)counter.textContent=`${T('counter')}: ${completed.size} / ${C.current.paid?24:FREE_LIMIT}`;
+ const counter=$('counter');if(counter)counter.textContent=`${progressLabel()}: ${completed.size} / ${C.current.paid?24:FREE_LIMIT}`;
  document.querySelectorAll('.guide h2').forEach(e=>e.textContent=T('guide'));
  document.querySelectorAll('.guide .step').forEach((e,i)=>{const k=['step1','step2','step3','step4'][i];if(k)e.textContent=`${i+1}. ${T(k)}`});
  const select=$('body-language');if(select)select.value=window.LXL.lang;
  document.querySelector('.brand small').textContent=T('brandNote');document.querySelector('.guide .hint').textContent=T('voiceHelp');
- $('close').setAttribute('aria-label',T('close'));$('body-language').setAttribute('aria-label',T('language'));$('progress').setAttribute('aria-label',T('counter'));
+ $('close').setAttribute('aria-label',T('close'));$('body-language').setAttribute('aria-label',T('language'));$('progress').setAttribute('aria-label',progressLabel());
  $('figure-scroll').setAttribute('aria-label',T('figureLabel'));$('figure').setAttribute('aria-label',T('figureLabel'));$('figure').querySelector('img').alt=T('figureLabel');
  updateUI();document.querySelectorAll('.speak').forEach(e=>e.setAttribute('aria-label',T('pronounceLabel',{word:itemFor(e.parentElement.dataset.id).english})));if(busy)$('status').textContent=C.text('checkingAnswer');else if(lastStatus)statusMsg('','',lastStatus.key,lastStatus.vars);else $('status').textContent=T('step1');
  const effectStatus=$('effect-status');if(effectStatus?.dataset.audioError)effectStatus.textContent=T(effectStatus.dataset.audioError);
@@ -99,7 +101,7 @@ async function attempt(wordId,pointId,tactile=false){
    if(result.correct){completed.add(wordId);matches.set(wordId,pointId);statusMsg('','','correct',{word:itemFor(wordId).english})}
    else statusMsg('','','retry',{word:itemFor(wordId).english});
    if(result.completed&&result.matches){completed=new Set(result.completed);matches.clear();Object.entries(result.matches).forEach(([word,point])=>matches.set(word,point));}
-   locked=result.locked;$('counter').textContent=T('counter')+': '+result.count+' / '+result.limit;
+   locked=result.locked;$('counter').textContent=progressLabel()+': '+result.count+' / '+result.limit;
    $('progress').setAttribute('aria-valuemax',result.limit);$('progress').setAttribute('aria-valuenow',result.count);$('fill').style.width=(100*result.count/result.limit)+'%';updateUI();
    // Confirmed visuals and the cached effect start in this same frame.
    if(success)window.LXLAudio?.playSuccess?.();else if(!result.correct)playError();
@@ -154,10 +156,10 @@ function startDrag(e,d,button){
  if(touch){window.addEventListener('touchmove',touchMove,{passive:false});window.addEventListener('touchend',touchEnd);window.addEventListener('touchcancel',cancel)}
 }
 function reset(){if(busy)return;clearAttemptFeedback();selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset')}
-let returnFocus=null;
+let returnFocus=null,entryPending=true;
 function dialog(html,type){$('dialog').classList.remove('sic-token-modal');if(!modalName)returnFocus=document.activeElement;const box=$('dialog-content');box.innerHTML=html;$('dialog').classList.toggle('tutorial-dialog',type==='tutorial');$('overlay').classList.add('open');modalName=type;setBackgroundInert(true);translateOpenDialog(type);$('close').focus()}
 const tx=(key,tag='p')=>'<'+tag+' data-t="'+key+'">'+T(key)+'</'+tag+'>';
-function openModal(type){if(type==='request'){dialog('<h2 id="dialog-title"></h2>','form');C.mountRequest($('dialog-content'));return;}if(type==='cart'||type==='form'){dialog('<h2 id="dialog-title"></h2>','form');C.mountAccess($('dialog-content'),session=>{completed=new Set(session.completed);matches.clear();Object.entries(session.matches||{}).forEach(([word,point])=>matches.set(word,point));locked=false;closeModal();updateUI();$('counter').textContent=T('counter')+': '+completed.size+' / 24';$('progress').setAttribute('aria-valuemax',24);$('progress').setAttribute('aria-valuenow',completed.size);$('fill').style.width=(100*completed.size/24)+'%'});return;}
+function openModal(type){if(type==='request'){dialog('<h2 id="dialog-title"></h2>','form');C.mountRequest($('dialog-content'));return;}if(type==='cart'||type==='form'){dialog('<h2 id="dialog-title"></h2>','form');C.mountAccess($('dialog-content'),()=>{applyServerSession();closeModal();});return;}
  const title={tutorial:'tutorialTitle',success:'success',cart:'cartTitle',form:'formTitle'}[type];
  let html='<h2 id="dialog-title" data-t="'+title+'">'+T(title)+'</h2>';
  if(type==='tutorial')html+=tx('tutorialIntro')+'<div class="demo-area"><div class="demo-word" lang="en">Eye 🔊</div><div class="demo-arrow" aria-hidden="true">➜</div><div class="demo-target" aria-hidden="true">✓</div></div><div class="tutorial-steps">'+[1,2,3,4].map(n=>tx('step'+n,'div')).join('')+'</div>'+'<div class="voice-choices">'+['female','male'].map(g=>'<label><input type="radio" name="voice" value="'+g+'" '+(voicePreference===g?'checked':'')+'><span data-t="'+g+'">'+T(g)+'</span></label>').join('')+'<button class="btn btn-white" id="voice-test" data-t="test">'+T('test')+'</button></div><button class="btn btn-red" id="start" data-t="start">'+T('start')+'</button>';
@@ -174,17 +176,22 @@ function setBackgroundInert(on){
  document.documentElement.classList.toggle('modal-open',on);
  document.querySelectorAll('body>header,body>main,body>.intro,body>footer,body>[data-ui="demo"]').forEach(e=>e.inert=on);
 }
-function applyServerSession(){const session=C.current;completed=new Set(session.completed||[]);matches.clear();Object.entries(session.matches||{}).forEach(([word,point])=>matches.set(word,point));locked=!!session.locked;updateUI();const limit=session.paid?24:FREE_LIMIT;$('counter').textContent=T('counter')+': '+completed.size+' / '+limit;$('progress').setAttribute('aria-valuemax',limit);$('progress').setAttribute('aria-valuenow',completed.size);$('fill').style.width=(100*completed.size/limit)+'%';}
+function applyServerSession(){const session=C.current;completed=new Set(session.completed||[]);matches.clear();Object.entries(session.matches||{}).forEach(([word,point])=>matches.set(word,point));locked=!!session.locked;progressBanner();updateUI();const limit=session.paid?24:FREE_LIMIT;$('counter').textContent=progressLabel()+': '+completed.size+' / '+limit;$('progress').setAttribute('aria-label',progressLabel());$('progress').setAttribute('aria-valuemax',limit);$('progress').setAttribute('aria-valuenow',completed.size);$('fill').style.width=(100*completed.size/limit)+'%';}
 document.addEventListener('sic-session-started',applyServerSession);
 document.addEventListener('sic-access-granted',()=>{applyServerSession();closeModal();});
-function closeModal(){C.cancelPracticeStart?.();$('overlay').classList.remove('open');modalName='';setBackgroundInert(false);returnFocus?.focus()}
+function closeModal(){
+ const languageNext=entryPending&&modalName==='form',tutorial=modalName==='tutorial';
+ if(tutorial)entryPending=false;
+ C.cancelPracticeStart?.();$('overlay').classList.remove('open');modalName='';setBackgroundInert(false);
+ if(languageNext)queueMicrotask(showLanguageWelcome);else if(tutorial)$('words').querySelector('.choose-word')?.focus();else if(returnFocus?.isConnected)returnFocus.focus();
+}
 $('close').onclick=closeModal;
 $('body-language').addEventListener('change',e=>window.LXL.setLang(e.target.value));
 document.addEventListener('lxl-language-change',updateBodyLocale);
 $('overlay').onclick=e=>{if(e.target===$('overlay'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalName)closeModal();if(e.key==='Tab'&&modalName){const b=[...$('dialog').querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')].filter(element=>element.getClientRects().length),first=b[0],last=b.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 $('reset').onclick=reset;$('preview').onclick=()=>openModal('cart');$('reopen-tutorial').onclick=()=>openModal('tutorial');
 // Desde Inicio: abrir el acceso existente; la URL solo transporta una señal, nunca el token.
-if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>openModal('form'));}
+// Entry is selected below, after the language welcome is defined.
 
 // Prevent an ordinary click after a drag from accidentally selecting the word.
 document.addEventListener('click',e=>{if(skipClick&&e.detail!==0&&!e.target.closest('.speak,#speak,#voice-test')){e.stopPropagation();e.preventDefault();skipClick=false}},true);
@@ -193,6 +200,7 @@ window.LXLAudio.onError(error=>{if(!['effectFail','successEffectFail'].includes(
 render();updateBodyLocale();
 // A first-time visitor selects an instruction language before beginning.
 function showLanguageWelcome(){
+ if(document.querySelector('.language-welcome'))return;
  const layer=document.createElement('div');layer.className='language-welcome';layer.setAttribute('role','dialog');layer.setAttribute('aria-modal','true');layer.setAttribute('aria-labelledby','lang-welcome-title');
  layer.innerHTML=`<section class="language-welcome-panel"><h2 id="lang-welcome-title"></h2><p id="lang-welcome-help"></p><label for="welcome-language">🌐</label><select id="welcome-language"><option value="en">English</option><option value="zh-CN">简体中文</option><option value="fr">Français</option><option value="pt">Português</option><option value="es">Español</option></select><button type="button" id="welcome-go" class="btn btn-red"></button></section>`;
  document.body.append(layer);setBackgroundInert(true);const sel=layer.querySelector('#welcome-language');sel.value=window.LXL.lang;
@@ -200,7 +208,7 @@ function showLanguageWelcome(){
  sel.addEventListener('change',()=>{window.LXL.setLang(sel.value);draw()});
  layer.querySelector('#welcome-go').addEventListener('click',()=>{layer.remove();openModal('tutorial')});layer.addEventListener('keydown',e=>{if(e.key==='Tab'){const first=sel,last=layer.querySelector('#welcome-go');if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});sel.focus();
 }
-showLanguageWelcome();
+if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);openModal('form');}else showLanguageWelcome();
 
 // Exercise header menu lifecycle. The shared renderer and other pages stay intact.
 const bindCommercialMenu=()=>{
