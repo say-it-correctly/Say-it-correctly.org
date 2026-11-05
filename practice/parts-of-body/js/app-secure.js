@@ -8,7 +8,7 @@ const progressLabel=()=>C.current.paid?({en:'Progress',es:'Progreso',fr:'Progres
 const progressBanner=()=>{document.querySelector('[data-ui=demo]').textContent=C.current.paid?progressLabel()+' · '+T('words'):C.text('free')};
 function updateBodyLocale(){
  const map={'body-instruction':'instruction','body-choose':'choose','body-words-count':'words','body-drag-help':'drag'};for(const [id,key] of Object.entries(map)){const e=$(id);if(e)e.textContent=T(key)}
- progressBanner();document.querySelector('.footer').textContent=T('foot');
+ progressBanner();
  const back=document.querySelector('.header a.btn-white');if(back){back.textContent=T('back');back.href='../../home/index.html?lang='+encodeURIComponent(window.LXL.lang)}
  const help=$('reopen-tutorial');if(help)help.textContent=T('help');
  const reset=$('reset');if(reset)reset.textContent=T('reset');
