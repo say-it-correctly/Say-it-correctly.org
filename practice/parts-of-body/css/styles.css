@@ -352,6 +352,12 @@ body .footer.site-footer .site-footer-navigation a{min-height:44px}
 }
 
 /* SIC: arrastre con ratón; selección por toque en móvil. */
+/* Neutral receipt while the server validates; no score or success is implied. */
+.word-card.is-pending{outline:2px solid #64748b;outline-offset:1px}
+.target.is-pending::before{box-shadow:0 0 0 4px #e2e8f0,0 0 0 6px #64748b;transition:none}
+.word-card.is-feedback,.target.is-feedback::before{transition:none}
+.word-card.is-incorrect{outline:2px solid var(--red);outline-offset:1px}
+.target.is-incorrect:not(.correct)::before{background:var(--red)}
 @media (pointer:fine){
  .choose-word{touch-action:none!important;user-select:none}
 }

@@ -76,23 +76,57 @@ function playError(){return window.LXLAudio.playError()}
 function render(){const words=$('words'),targets=$('targets'),lines=$('target-lines');words.replaceChildren();targets.replaceChildren();lines.replaceChildren();for(const d of DATA){
  const card=document.createElement('div');card.className='word-card';card.dataset.id=d.id;card.setAttribute('role','group');const choose=document.createElement('button');choose.type='button';choose.className='choose-word';choose.textContent=d.english;choose.dataset.id=d.id;choose.setAttribute('aria-label',T('chooseLabel',{word:d.english}));choose.addEventListener('click',()=>chooseWord(d.id));choose.addEventListener('pointerdown',e=>startDrag(e,d,choose));const audio=document.createElement('button');audio.className='speak';audio.type='button';audio.textContent='🔊';audio.setAttribute('aria-label',T('pronounceLabel',{word:d.english}));audio.addEventListener('click',()=>speak(d.english));card.append(choose,audio);words.append(card);}
  for(const d of MARKERS){const dot=document.createElement('button');dot.type='button';dot.className='target';dot.dataset.id=d.id;dot.style.left=d.controlX+'%';dot.style.top=d.controlY+'%';dot.setAttribute('aria-label',T('markerLabel',{word:MARKERS.indexOf(d)+1}));dot.innerHTML='<span class="target-dot" aria-hidden="true">•</span>';dot.addEventListener('click',e=>{const point=(e.detail?markerAtPoint(e.clientX,e.clientY):dot)?.dataset.id;if(!point)return;const word=[...matches].find(x=>x[1]===point)?.[0];if(word&&completed.has(word)){recall(word);return}if(selected&&!locked)attempt(selected,point)});targets.append(dot);if(Math.hypot(d.targetX-d.controlX,d.targetY-d.controlY)>1.15){const ns='http://www.w3.org/2000/svg';const line=document.createElementNS(ns,'line');line.dataset.id=d.id;line.setAttribute('x1',d.controlX/100*887);line.setAttribute('y1',d.controlY/100*1774);line.setAttribute('x2',d.targetX/100*887);line.setAttribute('y2',d.targetY/100*1774);lines.append(line);const spot=document.createElementNS(ns,'circle');spot.dataset.id=d.id;spot.setAttribute('cx',d.targetX/100*887);spot.setAttribute('cy',d.targetY/100*1774);spot.setAttribute('r',2.6);lines.append(spot)}}updateUI();}
-function chooseWord(id){if(completed.has(id)){recall(id);return}if(locked)return;selected=id;highlighted=null;updateUI();const d=itemFor(id);statusMsg('','', 'selected',{word:d.english})}
+function chooseWord(id){if(busy)return;if(completed.has(id)){recall(id);return}if(locked)return;selected=id;highlighted=null;updateUI();const d=itemFor(id);statusMsg('','', 'selected',{word:d.english})}
 function recall(id){if(!completed.has(id))return;highlighted=highlighted===id?null:id;selected=null;updateUI();if(highlighted){const card=$('words').querySelector(`[data-id="${id}"].word-card`);const dot=$('targets').querySelector(`[data-id="${matches.get(id)}"]`);card?.scrollIntoView({block:'nearest'});dot?.scrollIntoView({block:'nearest'});const d=itemFor(id);statusMsg('','','review',{word:d.english})}else statusMsg('','','unreview')}
 function updateUI(){for(const card of document.querySelectorAll('.word-card')){const id=card.dataset.id,done=completed.has(id);card.classList.toggle('done',done);card.classList.toggle('recall',done&&highlighted===id);card.classList.toggle('selected',selected===id&&!done);card.querySelector('.choose-word').textContent=itemFor(id).english+(done?' ✓':'');card.querySelector('.choose-word').disabled=locked&&!done;card.querySelector('.choose-word').setAttribute('aria-label',T(done?'reviewLabel':'chooseLabel',{word:itemFor(id).english}))}for(const dot of document.querySelectorAll('.target')){const word=[...matches].find(x=>x[1]===dot.dataset.id)?.[0];dot.classList.toggle('correct',!!word&&completed.has(word));dot.classList.toggle('recall',word===highlighted);dot.setAttribute('aria-label',T(word?'reviewLabel':'markerLabel',{word:word?itemFor(word).english:MARKERS.findIndex(d=>d.id===dot.dataset.id)+1}))}for(const e of document.querySelectorAll('#target-lines [data-id]'))e.classList.toggle('recall',matches.get(highlighted)===e.dataset.id)}
-async function attempt(wordId,pointId){if(locked||busy||!wordId||completed.has(wordId))return;busy=true;window.LXLAudio?.warmEffects?.();$('status').textContent=C.text('checkingAnswer');try{const result=await C.attempt(wordId,pointId);selected=null;highlighted=null;if(result.correct){if(!completed.has(wordId)&&!result.already)window.LXLAudio?.playSuccess?.();completed.add(wordId);matches.set(wordId,pointId);statusMsg('','','correct',{word:itemFor(wordId).english});}else{statusMsg('','','retry',{word:itemFor(wordId).english});playError();}if(result.completed&&result.matches){completed=new Set(result.completed);matches.clear();Object.entries(result.matches).forEach(([word,point])=>matches.set(word,point));}locked=result.locked;$('counter').textContent=T('counter')+': '+result.count+' / '+result.limit;$('progress').setAttribute('aria-valuemax',result.limit);$('progress').setAttribute('aria-valuenow',result.count);$('fill').style.width=(100*result.count/result.limit)+'%';updateUI();if(result.locked)setTimeout(()=>openModal('success'),550);}catch(error){if(error.code==='practice_cancelled'){$('status').textContent=T('step1');return;}$('status').textContent=error.code==='permission_required'?C.text(!C.current.paid&&completed.size<FREE_LIMIT?'freeSelectionRequired':'pending'):C.errorText(error);if((C.current.paid||completed.size>=FREE_LIMIT)&&(error.code==='permission_required'||error.code==='invalid_or_expired_token'))openModal('form');}finally{busy=false}}
+let feedbackNodes=[],feedbackTimer=null;
+function clearAttemptFeedback(){clearTimeout(feedbackTimer);feedbackNodes.forEach(node=>node?.classList.remove('is-feedback','is-incorrect'));feedbackNodes=[];}
+function feedbackFrame(callback){return new Promise((resolve,reject)=>{const run=()=>{try{callback();resolve()}catch(error){reject(error)}};if(document.hidden)run();else requestAnimationFrame(run)});}
+async function attempt(wordId,pointId,tactile=false){
+ if(locked||busy||!wordId||completed.has(wordId))return;
+ busy=true;clearAttemptFeedback();
+ const nodes=[$('words').querySelector(`[data-id="${wordId}"].word-card`),$('targets').querySelector(`[data-id="${pointId}"]`)];
+ const pending=on=>nodes.forEach(node=>{node?.classList.toggle('is-pending',on);node?.setAttribute('aria-busy',String(on))});
+ pending(true);$('status').textContent=C.text('checkingAnswer');
+ if(tactile){try{navigator.vibrate?.(8)}catch{}}
+ window.LXLAudio?.warmEffects?.();
+ try{
+  const result=await C.attempt(wordId,pointId);
+  await feedbackFrame(()=>{
+   pending(false);selected=null;highlighted=null;
+   const success=result.correct&&!completed.has(wordId)&&!result.already;
+   feedbackNodes=nodes;nodes.forEach(node=>{node?.classList.add('is-feedback');node?.classList.toggle('is-incorrect',!result.correct)});
+   if(result.correct){completed.add(wordId);matches.set(wordId,pointId);statusMsg('','','correct',{word:itemFor(wordId).english})}
+   else statusMsg('','','retry',{word:itemFor(wordId).english});
+   if(result.completed&&result.matches){completed=new Set(result.completed);matches.clear();Object.entries(result.matches).forEach(([word,point])=>matches.set(word,point));}
+   locked=result.locked;$('counter').textContent=T('counter')+': '+result.count+' / '+result.limit;
+   $('progress').setAttribute('aria-valuemax',result.limit);$('progress').setAttribute('aria-valuenow',result.count);$('fill').style.width=(100*result.count/result.limit)+'%';updateUI();
+   // Confirmed visuals and the cached effect start in this same frame.
+   if(success)window.LXLAudio?.playSuccess?.();else if(!result.correct)playError();
+   feedbackTimer=setTimeout(clearAttemptFeedback,550);
+   if(result.locked)setTimeout(()=>openModal('success'),550);
+  });
+ }catch(error){
+  if(error.code==='practice_cancelled'){$('status').textContent=T('step1');return;}
+  $('status').textContent=error.code==='permission_required'?C.text(!C.current.paid&&completed.size<FREE_LIMIT?'freeSelectionRequired':'pending'):C.errorText(error);
+  if((C.current.paid||completed.size>=FREE_LIMIT)&&(error.code==='permission_required'||error.code==='invalid_or_expired_token'))openModal('form');
+ }finally{pending(false);busy=false;}
+}
 let skipClick=false;
 function startDrag(e,d,button){
- if(button.disabled||e.button!==0||e.isPrimary===false||locked||completed.has(d.id))return;
+ if(button.disabled||e.button!==0||e.isPrimary===false||locked||busy||completed.has(d.id))return;
  const x=e.clientX,y=e.clientY,pointer=e.pointerId,touch=e.pointerType==='touch';
- let moved=false,held=false;
+ let moved=false,held=false,finished=false;
  const hold=touch?setTimeout(()=>{held=true},300):null;
  const clean=()=>{
+  finished=true;
   clearTimeout(hold);
   window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',cancel);
   window.removeEventListener('touchmove',touchMove);window.removeEventListener('touchend',touchEnd);window.removeEventListener('touchcancel',cancel);
   dragGhost?.remove();dragGhost=null;document.querySelectorAll('.target').forEach(t=>t.classList.remove('is-hover'));
  };
  const track=(point,event)=>{
+  if(finished)return;
   const dx=point.clientX-x,dy=point.clientY-y;
   if(!moved){
    if(Math.hypot(dx,dy)<=9)return;
@@ -110,7 +144,7 @@ function startDrag(e,d,button){
   }
   document.querySelectorAll('.target').forEach(t=>t.classList.remove('is-hover'));markerAtPoint(point.clientX,point.clientY)?.classList.add('is-hover');
  };
- const finish=point=>{const hit=moved?markerAtPoint(point.clientX,point.clientY):null;clean();if(moved){skipClick=true;setTimeout(()=>skipClick=false,150);if(hit)attempt(d.id,hit.dataset.id);else statusMsg('','','returned')}};
+ const finish=point=>{if(finished)return;const hit=moved?markerAtPoint(point.clientX,point.clientY):null;clean();if(moved){skipClick=true;setTimeout(()=>skipClick=false,150);if(hit)attempt(d.id,hit.dataset.id,touch);else statusMsg('','','returned')}};
  const move=ev=>{if(!touch&&ev.pointerId===pointer)track(ev,ev)};
  const up=ev=>{if(!touch&&ev.pointerId===pointer)finish(ev)};
  const cancel=()=>clean();
@@ -119,7 +153,7 @@ function startDrag(e,d,button){
  window.addEventListener('pointermove',move);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',cancel);
  if(touch){window.addEventListener('touchmove',touchMove,{passive:false});window.addEventListener('touchend',touchEnd);window.addEventListener('touchcancel',cancel)}
 }
-function reset(){selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset')}
+function reset(){if(busy)return;clearAttemptFeedback();selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset')}
 let returnFocus=null;
 function dialog(html,type){$('dialog').classList.remove('sic-token-modal');if(!modalName)returnFocus=document.activeElement;const box=$('dialog-content');box.innerHTML=html;$('dialog').classList.toggle('tutorial-dialog',type==='tutorial');$('overlay').classList.add('open');modalName=type;setBackgroundInert(true);translateOpenDialog(type);$('close').focus()}
 const tx=(key,tag='p')=>'<'+tag+' data-t="'+key+'">'+T(key)+'</'+tag+'>';
@@ -153,7 +187,7 @@ $('reset').onclick=reset;$('preview').onclick=()=>openModal('cart');$('reopen-tu
 if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>openModal('form'));}
 
 // Prevent an ordinary click after a drag from accidentally selecting the word.
-document.addEventListener('click',e=>{if(skipClick){e.stopPropagation();e.preventDefault();skipClick=false}},true);
+document.addEventListener('click',e=>{if(skipClick&&e.detail!==0&&!e.target.closest('.speak,#speak,#voice-test')){e.stopPropagation();e.preventDefault();skipClick=false}},true);
 window.LXLAudio.onVoicesChanged(refreshVoices);refreshVoices();
 window.LXLAudio.onError(error=>{if(!['effectFail','successEffectFail'].includes(error.code))return;const status=$('effect-status');status.hidden=false;status.dataset.audioError=error.code;status.textContent=T(error.code)});
 render();updateBodyLocale();
