@@ -121,7 +121,7 @@ function startDrag(e,d,button){
 }
 function reset(){selected=null;highlighted=null;updateUI();closeModal();$('status').textContent=C.text('reset')}
 let returnFocus=null;
-function dialog(html,type){if(!modalName)returnFocus=document.activeElement;const box=$('dialog-content');box.innerHTML=html;$('dialog').classList.toggle('tutorial-dialog',type==='tutorial');$('overlay').classList.add('open');modalName=type;setBackgroundInert(true);translateOpenDialog(type);$('close').focus()}
+function dialog(html,type){$('dialog').classList.remove('sic-token-modal');if(!modalName)returnFocus=document.activeElement;const box=$('dialog-content');box.innerHTML=html;$('dialog').classList.toggle('tutorial-dialog',type==='tutorial');$('overlay').classList.add('open');modalName=type;setBackgroundInert(true);translateOpenDialog(type);$('close').focus()}
 const tx=(key,tag='p')=>'<'+tag+' data-t="'+key+'">'+T(key)+'</'+tag+'>';
 function openModal(type){if(type==='request'){dialog('<h2 id="dialog-title"></h2>','form');C.mountRequest($('dialog-content'));return;}if(type==='cart'||type==='form'){dialog('<h2 id="dialog-title"></h2>','form');C.mountAccess($('dialog-content'),session=>{completed=new Set(session.completed);matches.clear();Object.entries(session.matches||{}).forEach(([word,point])=>matches.set(word,point));locked=false;closeModal();updateUI();$('counter').textContent=T('counter')+': '+completed.size+' / 24';$('progress').setAttribute('aria-valuemax',24);$('progress').setAttribute('aria-valuenow',completed.size);$('fill').style.width=(100*completed.size/24)+'%'});return;}
  const title={tutorial:'tutorialTitle',success:'success',cart:'cartTitle',form:'formTitle'}[type];
@@ -147,7 +147,7 @@ function closeModal(){C.cancelPracticeStart?.();$('overlay').classList.remove('o
 $('close').onclick=closeModal;
 $('body-language').addEventListener('change',e=>window.LXL.setLang(e.target.value));
 document.addEventListener('lxl-language-change',updateBodyLocale);
-$('overlay').onclick=e=>{if(e.target===$('overlay'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalName)closeModal();if(e.key==='Tab'&&modalName){const b=[...$('dialog').querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')],first=b[0],last=b.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+$('overlay').onclick=e=>{if(e.target===$('overlay'))closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalName)closeModal();if(e.key==='Tab'&&modalName){const b=[...$('dialog').querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]')].filter(element=>element.getClientRects().length),first=b[0],last=b.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
 $('reset').onclick=reset;$('preview').onclick=()=>openModal('cart');$('reopen-tutorial').onclick=()=>openModal('tutorial');
 // Desde Inicio: abrir el acceso existente; la URL solo transporta una señal, nunca el token.
 if(location.hash==='#sic-token'){history.replaceState(null,'',location.pathname+location.search);queueMicrotask(()=>openModal('form'));}
@@ -194,4 +194,3 @@ const bindCommercialMenu=()=>{
 };if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindCommercialMenu);else bindCommercialMenu();
 
 }catch(error){const messages={en:'The exercise could not load. Reload the page or contact support.',es:'No se pudo cargar el ejercicio. Recarga la página o contacta al soporte.','zh-CN':'无法加载练习。请刷新页面或联系支持人员。',fr:'Impossible de charger l’exercice. Actualisez la page ou contactez l’assistance.',pt:'Não foi possível carregar o exercício. Recarregue a página ou contate o suporte.'};const language=window.LXL?.lang||'en',status=document.getElementById('status'),select=document.getElementById('body-language');if(select)select.value=language;if(status){status.setAttribute('role','alert');status.textContent=C?.errorText?C.errorText(error):messages[language]||messages.en;}}})();
-

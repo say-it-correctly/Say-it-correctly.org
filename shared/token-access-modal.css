@@ -1,0 +1,128 @@
+.sic-token-modal{--blue:#123b78;--red:#d83449;--ink:#182b46;--muted:#52647d;--line:#dfe6f1}
+.sic-token-modal *{box-sizing:border-box}
+.sic-token-modal button,.sic-token-modal input,.sic-token-modal textarea,.sic-token-modal select{font:inherit}
+.sic-token-modal button{cursor:pointer}
+.sic-token-modal button:disabled{cursor:wait;opacity:.65}
+.sic-token-modal :focus-visible{outline:3px solid #d83449;outline-offset:3px}
+.sic-token-modal [hidden]{display:none!important}
+.sic-token-modal .shell{max-width:960px;margin:auto;padding:32px 22px}
+.sic-token-modal .brand{display:flex;align-items:center;gap:12px;color:var(--blue)}
+.sic-token-modal .brand img{width:52px;height:52px;object-fit:contain}
+.sic-token-modal .brand strong{display:block;font-size:20px;letter-spacing:-.6px}
+.sic-token-modal .brand small{color:var(--muted);font-size:11px}
+.sic-token-modal .intro{margin:72px 0 24px;max-width:520px}
+.sic-token-modal h1{font-size:38px;line-height:1.15;letter-spacing:-1px}
+.sic-token-modal .muted{color:var(--muted)}
+.sic-token-modal .button{border:0;border-radius:12px;padding:12px 18px;background:var(--blue);color:white;font-weight:750;min-height:46px}
+.sic-token-modal .secondary{background:white;color:var(--blue);border:1px solid var(--line)}
+.sic-token-modal .veil{position:fixed;inset:0;background:#0a234a99;overflow-y:auto;padding:28px 16px;display:flex;align-items:flex-start;z-index:2}
+.sic-token-modal .card{margin:auto;width:min(100%,540px);background:white;border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 80px #061b3c55;padding:26px;position:relative}
+.sic-token-modal .close{position:absolute;right:14px;top:14px;width:40px;height:40px;border:0;border-radius:50%;background:#f3f6fc;color:var(--blue);font-size:24px}
+.sic-token-modal .card .brand{padding-right:38px}
+.sic-token-modal .card .brand img{width:42px;height:42px}
+.sic-token-modal .card .brand strong{font-size:17px}
+.sic-token-modal .eyebrow{color:var(--red);font-size:11px;letter-spacing:.13em;font-weight:800;margin:22px 0 6px}
+.sic-token-modal h2{font-size:26px;letter-spacing:-.7px;line-height:1.2;margin:0 0 8px}
+.sic-token-modal .lead{font-size:14px;margin:0 0 20px;color:var(--muted)}
+.sic-token-modal .modes{display:flex;background:#f0f4fa;padding:4px;border-radius:12px;margin:20px 0}
+.sic-token-modal .modes button{flex:1;border:0;padding:10px 5px;border-radius:9px;color:var(--muted);background:transparent;font-size:13px;font-weight:750}
+.sic-token-modal .modes button[aria-pressed=true]{background:white;color:var(--blue);box-shadow:0 2px 7px #123b7814}
+.sic-token-modal form{display:grid;gap:14px}
+.sic-token-modal label{font-size:13px;font-weight:700;display:grid;gap:6px}
+.sic-token-modal input:not([type=checkbox]),.sic-token-modal textarea{width:100%;min-width:0;border:1px solid #bdcce0;border-radius:10px;padding:11px 12px;color:var(--ink);background:white}
+.sic-token-modal textarea{resize:vertical;min-height:80px}
+.sic-token-modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sic-token-modal .check{display:flex;align-items:flex-start;gap:9px;font-size:12px;font-weight:500}
+.sic-token-modal .check input{margin:3px 0 0;width:18px;height:18px;flex-shrink:0}
+.sic-token-modal a{color:var(--blue);text-underline-offset:3px}
+.sic-token-modal .offer{border-top:1px solid var(--line);margin:20px 0 0;padding-top:16px;font-size:12px;color:var(--muted)}
+.sic-token-modal .offer strong{color:var(--blue)}
+.sic-token-modal .offer p{margin:4px 0}
+.sic-token-modal .notice{border-radius:10px;padding:12px 14px;font-size:13px;margin:0;background:#eef4fe;color:var(--blue);overflow-wrap:anywhere}
+.sic-token-modal .notice[data-state=error]{background:#fff0f2;color:#9c2034}
+.sic-token-modal .notice[data-state=success]{background:#edf8f1;color:#20603d}
+.sic-token-modal .otp{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:12px}
+.sic-token-modal .otp h3{font-size:15px;margin:0}
+.sic-token-modal .otp p{margin:0;font-size:13px}
+.sic-token-modal .preview{border-top:1px dashed var(--line);padding-top:14px;margin-top:18px;font-size:11px;color:var(--muted)}
+.sic-token-modal .preview label{font-size:11px;margin-bottom:8px}
+.sic-token-modal .preview select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;background:white;color:var(--ink)}
+@media(max-width:540px){.sic-token-modal .veil{padding:12px;}
+.sic-token-modal .card{padding:22px 18px;border-radius:18px}
+.sic-token-modal .row{grid-template-columns:1fr}
+.sic-token-modal h2{font-size:24px}
+.sic-token-modal .brand strong{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.sic-token-modal *{scroll-behavior:auto!important}
+}
+.sic-token-modal .veil{padding:12px;overflow-x:hidden;overscroll-behavior:contain}
+.sic-token-modal .card{width:min(100%,580px);min-width:0;flex-shrink:0;padding:18px 22px;max-height:calc(100dvh - 24px);min-height:min-content;overflow:visible;overflow-wrap:anywhere}
+.sic-token-modal .card>*{min-width:0}
+.sic-token-modal .card .brand img{width:36px;height:36px}
+.sic-token-modal .close{top:12px;right:12px}
+.sic-token-modal .modes{margin:12px 0;padding:3px}
+.sic-token-modal .modes button{padding:8px 5px;min-width:0}
+.sic-token-modal .card .eyebrow{margin:10px 0 4px}
+.sic-token-modal .card h2{margin-bottom:6px}
+.sic-token-modal .lead{margin-bottom:12px}
+.sic-token-modal form{gap:9px}
+.sic-token-modal label{gap:4px}
+.sic-token-modal input:not([type=checkbox]),.sic-token-modal textarea{padding:8px 11px}
+.sic-token-modal textarea{min-height:62px;height:62px}
+.sic-token-modal .button{padding:10px 16px;min-height:44px;white-space:normal}
+.sic-token-modal .row{gap:10px;min-width:0}
+.sic-token-modal .check{line-height:1.4;gap:8px}
+.sic-token-modal .offer{margin-top:12px;padding-top:10px;line-height:1.4}
+.sic-token-modal .offer p{margin:3px 0 0}
+.sic-token-modal .notice{padding:9px 11px;margin-top:9px;line-height:1.4}
+.sic-token-modal .otp{padding:10px;gap:8px}
+.sic-token-modal .preview{padding-top:8px;margin-top:10px;font-size:10px;line-height:1.35}
+.sic-token-modal .preview label{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:center;gap:8px;font-size:10px;margin-bottom:5px}
+.sic-token-modal .preview select{min-width:0;max-width:100%;padding:5px;font-size:11px}
+@media(max-width:540px){.sic-token-modal .veil{padding:10px}
+.sic-token-modal .card{padding:18px 16px;max-height:none;min-height:0;width:100%}
+.sic-token-modal .card .brand{gap:8px}
+.sic-token-modal .card .brand strong{font-size:16px}
+.sic-token-modal .preview label{grid-template-columns:minmax(0,1fr)}
+.sic-token-modal .row{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-height:700px){.sic-token-modal .card{max-height:none}
+}
+
+#overlay:has(.sic-token-modal){overflow-y:auto;overflow-x:hidden;align-items:flex-start;padding:12px}
+#dialog.sic-token-modal{width:min(100%,580px);margin:auto;max-height:none;overflow:visible;background:transparent;border:0;padding:0;box-shadow:none;flex-shrink:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+#dialog.sic-token-modal>.close{display:none}
+.sic-token-modal .card{width:100%;margin:0;box-sizing:border-box}
+.sic-token-modal *{box-sizing:border-box}
+.sic-token-modal #tokenForm>small{font-size:12px}
+.sic-token-modal .brand{margin:0;text-decoration:none}
+.sic-token-modal .brand img{max-width:36px}
+
+/* Isolate the commercial card from the tutorial's two-column grid and sizing. */
+#overlay:has(#dialog.sic-token-modal){padding:12px;overflow-y:auto;overflow-x:hidden;align-items:flex-start;justify-content:center;overscroll-behavior:contain}
+#dialog.dialog.sic-token-modal{display:block;flex:0 0 auto;width:min(560px,calc(100vw - 24px));min-width:0;max-width:none;min-height:0;max-height:none;margin:auto;padding:0;grid-template:none;overflow:visible}
+#dialog.sic-token-modal #dialog-content{display:block;width:100%;min-width:0;max-width:none;height:auto;max-height:none;margin:0;padding:0;grid-template:none;gap:0;overflow:visible}
+#dialog.sic-token-modal #dialog-content>.card{display:block;width:100%;min-width:0;max-width:none;min-height:0;max-height:none;height:auto;overflow:visible;margin:0;padding:16px 22px;overflow-wrap:normal}
+#dialog.sic-token-modal #dialog-title{padding:0;margin:0 0 4px;max-width:none;font-size:26px;line-height:1.2;word-break:normal;overflow-wrap:normal;hyphens:none}
+#dialog.sic-token-modal .lead{font-size:13px;line-height:1.4;margin:0 0 8px}
+#dialog.sic-token-modal .eyebrow{margin:6px 0 4px}
+#dialog.sic-token-modal .modes{margin:10px 0;padding:3px;gap:2px}
+#dialog.sic-token-modal .modes button{min-width:0;min-height:44px;padding:8px 6px;line-height:1.3}
+#dialog.sic-token-modal form{width:100%;min-width:0;gap:8px}
+#dialog.sic-token-modal label{font-size:13px;line-height:1.35;gap:4px;min-width:0}
+#dialog.sic-token-modal input:not([type=checkbox]){width:100%;min-height:44px;padding:10px 12px;font-size:15px}
+#dialog.sic-token-modal textarea{width:100%;min-height:62px;height:62px;padding:9px 12px;font-size:14px}
+#dialog.sic-token-modal .button{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:0;padding:10px 14px;font-size:14px;line-height:1.35;text-align:center;text-decoration:none}
+#dialog.sic-token-modal .check{font-size:12px;line-height:1.4}
+#dialog.sic-token-modal .offer{margin-top:10px;padding-top:8px}
+#dialog.sic-token-modal [data-sic-control="commercial-captcha"]{min-width:0;max-width:100%;margin-bottom:8px}
+#dialog.sic-token-modal [data-sic-control="commercial-captcha"]:empty{display:none}
+html.sic-commercial-open,html.sic-commercial-open body{overflow:hidden;overscroll-behavior:none}
+html.sic-commercial-open{scrollbar-gutter:stable}
+@media(max-width:540px){
+ #overlay:has(#dialog.sic-token-modal){padding:8px}
+ #dialog.dialog.sic-token-modal{width:calc(100vw - 16px)}
+ #dialog.sic-token-modal #dialog-content>.card{padding:16px}
+ #dialog.sic-token-modal #dialog-title{font-size:24px}
+ #dialog.sic-token-modal .row{grid-template-columns:minmax(0,1fr)}
+}
